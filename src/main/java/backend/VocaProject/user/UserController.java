@@ -61,16 +61,17 @@ public class UserController {
         return new BaseResponse("로그인에 성공했습니다.", response);
     }
 
-//    @GetMapping("/api/auth")
-//    public User info(Authentication auth) {
-//        User userInfo = userService.getLoginUserByLoginId(auth.getName());
-//
-//        return userInfo;
-//    }
-//
-//    @Tag(name = "Users")
-//    @GetMapping("/api/admin")
-//    public String adminPage() {
-//        return "관리자 페이지 접근 성공";
-//    }
+    @Tag(name = "Users")
+    @GetMapping("/api/auth")
+    public User info(Authentication auth) {
+        User userInfo = userService.getLoginUserByLoginId(auth.getName());
+
+        return userInfo;
+    }
+
+    @Tag(name = "Users")
+    @GetMapping("/api/admin")
+    public String adminPage() {
+        return "관리자 페이지 접근 성공";
+    }
 }

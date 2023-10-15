@@ -15,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static backend.VocaProject.response.BaseExceptionStatus.DUPLICATE_LOGIN_ID;
-import static backend.VocaProject.response.BaseExceptionStatus.LOGIN_USER_NOT_EXIST;
+import static backend.VocaProject.response.BaseExceptionStatus.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,15 +37,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void userJoin(JoinRequest request) {
-        String username = request.getUsername();
+        // 로그인 아이디 중복 체크
+        checkLoginIdDuplicate(request.getLoginId());
 
-        String loginId = request.getLoginId();
-        checkLoginIdDuplicate(loginId);
+        String enPassword = bCryptPasswordEncoder.encode(request.getPassword());
 
-        String password = request.getPassword();
-        password = bCryptPasswordEncoder.encode(password);
-
-        User user = new User(username, loginId, password);
+        User user = new User(request.getUsername(), request.getLoginId(), enPassword);
 
         userRepository.save(user);
     }
@@ -82,20 +78,27 @@ public class UserServiceImpl implements UserService {
         return user.get();
     }
 
+    /**
+     * 유저 로그인
+     * @param request
+     * @return
+     */
     @Override
-    public LoginResponse login(LoginRequest loginRequest) {
-        String loginId = loginRequest.getLoginId();
-        String password = loginRequest.getPassword();
+    public LoginResponse login(LoginRequest request) {
+        // 로그인 아이디로 유저 있는지 확인
+        User user = userRepository.findByLoginId(request.getLoginId()).orElseThrow(() -> new BaseException(LOGIN_USER_NOT_EXIST));
 
-        Optional<User> user = userRepository.findByLoginId(loginId);
-
-        if (user.isEmpty() || !bCryptPasswordEncoder.matches(password, user.get().getPassword())) {
+        // 비밀번호 맞는지 확인
+        if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BaseException(LOGIN_USER_NOT_EXIST);
         }
 
-        String jwtToken = JwtTokenUtil.createToken(user.get().getLoginId());
+        // 승인되지 않은 유저일 경우
+        if (user.getApproval().equals("N")) throw new BaseException(WITHOUT_ACCESS_USER);
 
-        LoginResponse loginResponse = new LoginResponse(user.get().getId(), jwtToken);
+        String jwtToken = JwtTokenUtil.createToken(user.getLoginId());
+
+        LoginResponse loginResponse = new LoginResponse(user.getId(), jwtToken);
 
         return loginResponse;
     }

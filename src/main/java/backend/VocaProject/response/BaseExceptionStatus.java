@@ -9,6 +9,7 @@ public enum BaseExceptionStatus {
 
     DUPLICATE_LOGIN_ID(3001, "중복된 아이디가 있습니다."),
     LOGIN_USER_NOT_EXIST(3002, "아이디 또는 비밀번호가 일치하지 않습니다."),
+    WITHOUT_ACCESS_USER(3002, "권한이 없습니다. 관리자에게 문의하세요."),
 
     UNAUTHORIZED_USER_ACCESS(5001, "인증되지 않은 유저의 접근입니다."),
 

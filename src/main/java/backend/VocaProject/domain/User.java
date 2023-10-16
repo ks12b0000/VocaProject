@@ -30,10 +30,6 @@ public class User {
     @Column(length = 5, nullable = false)
     private String approval;
 
-//    @Column(length = 50, nullable = false)
-    @Column(length = 100)
-    private String learningClass;
-
     public User(String username, String loginId, String password) {
         this.username = username;
         this.loginId = loginId;
@@ -41,4 +37,6 @@ public class User {
         this.role = "ROLE_USER";
         this.approval = "N";
     }
+
+
 }

@@ -8,7 +8,6 @@ import backend.VocaProject.user.dto.LoginResponse;
 import backend.VocaProject.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +25,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Value("${JWT_SECRET_KEY}")
-    private static String JWT_SECRET_KEY;
 
     /**
      * 유저 회원가입

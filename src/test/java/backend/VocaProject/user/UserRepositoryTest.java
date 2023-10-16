@@ -33,8 +33,7 @@ public class UserRepositoryTest {
                 () -> assertThat(saveUser.getLoginId()).isEqualTo(user.getLoginId()),
                 () -> assertThat(saveUser.getPassword()).isEqualTo(user.getPassword()),
                 () -> assertThat(saveUser.getRole()).isEqualTo("ROLE_USER"), // 유저 저장 시 기본 Role = ROLE_USER
-                () -> assertThat(saveUser.getApproval()).isEqualTo("N"), // 유저 저장 시 기본 Approval(승인여부) = N
-                () -> assertThat(saveUser.getLearningClass()).isEqualTo(null) // 클래스 이름은 추후에 추가.
+                () -> assertThat(saveUser.getApproval()).isEqualTo("N") // 유저 저장 시 기본 Approval(승인여부) = N
         );
     }
 }

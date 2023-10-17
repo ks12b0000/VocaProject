@@ -24,11 +24,14 @@ public class User {
     @Column(length = 100, nullable = false)
     private String password;
 
-    @Column(length = 10, nullable = false)
+    @Column(length = 30, nullable = false)
     private String role;
 
     @Column(length = 5, nullable = false)
     private String approval;
+
+    @Column(length = 100)
+    private String className;
 
     public User(String username, String loginId, String password) {
         this.username = username;

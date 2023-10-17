@@ -38,7 +38,7 @@ public class WebSecurityConfig {
                 .addFilterBefore(new JwtTokenFilter(userService, JWT_SECRET_KEY), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").authenticated()
-                .antMatchers("/api/admin/**").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/api/admin/**").access("hasRole('ROLE_MASTER_ADMIN') or hasRole('ROLE_MIDDLE_ADMIN')")
                 .anyRequest().permitAll()
                 .and().build();
     }

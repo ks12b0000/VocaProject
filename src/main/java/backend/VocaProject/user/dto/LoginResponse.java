@@ -10,8 +10,11 @@ public class LoginResponse {
     private Long id;
     private String jwtToken;
 
-    public LoginResponse(Long id, String jwtToken) {
+    private String role;
+
+    public LoginResponse(Long id, String jwtToken, String role) {
         this.id = id;
         this.jwtToken = jwtToken;
+        this.role = role;
     }
 }

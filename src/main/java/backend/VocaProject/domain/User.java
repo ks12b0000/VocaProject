@@ -2,12 +2,14 @@ package backend.VocaProject.domain;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @NoArgsConstructor
 @Entity
 @Getter
+@Setter
 public class User {
 
     @Id
@@ -41,5 +43,8 @@ public class User {
         this.approval = "N";
     }
 
+    public void updateApproval(String approval) {
+        this.approval = approval;
+    }
 
 }

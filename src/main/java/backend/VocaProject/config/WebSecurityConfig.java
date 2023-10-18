@@ -39,6 +39,7 @@ public class WebSecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").authenticated()
                 .antMatchers("/api/admin/**").access("hasRole('ROLE_MASTER_ADMIN') or hasRole('ROLE_MIDDLE_ADMIN')")
+                .antMatchers("/api/master-admin/**").access("hasRole('ROLE_MASTER_ADMIN')")
                 .anyRequest().permitAll()
                 .and().build();
     }

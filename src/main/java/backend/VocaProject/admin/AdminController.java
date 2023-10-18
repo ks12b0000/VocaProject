@@ -1,15 +1,13 @@
 package backend.VocaProject.admin;
 
+import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
 import backend.VocaProject.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,11 +22,22 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "유저 전체 목록 조회에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @GetMapping("/api/admin/user-list/{userId}")
-    public BaseResponse userList(@PathVariable Long userId, @RequestParam String className, @RequestParam String approval) {
-        List<UserListResponse> response = adminService.userList(userId, className, approval);
+    @GetMapping("/api/admin/user-list/{adminId}")
+    public BaseResponse userList(@PathVariable Long adminId, @RequestParam String className, @RequestParam String approval) {
+        List<UserListResponse> response = adminService.userList(adminId, className, approval);
 
         return new BaseResponse("유저 전체 목록 조회에 성공했습니다.", response);
+    }
+
+    @Operation(summary = "유저 승인 여부 변경 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저 승인 여부 변경에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @PatchMapping("/api/master-admin/approval/user")
+    public BaseResponse userUpdateApproval(@RequestBody ApprovalUpdateRequest request) {
+        adminService.userUpdateApproval(request);
+
+        return new BaseResponse("유저 승인 여부 변경에 성공했습니다.");
     }
 
 }

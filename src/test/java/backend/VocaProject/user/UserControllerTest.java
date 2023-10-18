@@ -12,12 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class UserControllerTest {
@@ -31,7 +33,7 @@ public class UserControllerTest {
     @DisplayName("테스트에 필요한 유저 저장")
     public void before() throws Exception {
         // given
-        JoinRequest request = new JoinRequest("홍길동", "example1", "example123");
+        JoinRequest request = new JoinRequest("홍길동", "example12f", "example123");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -47,7 +49,7 @@ public class UserControllerTest {
     @DisplayName("유저 회원가입")
     void join() throws Exception {
         // given
-        JoinRequest request = new JoinRequest("홍길동", "example1243", "example123");
+        JoinRequest request = new JoinRequest("홍길동", "example124333f2", "example123");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -132,7 +134,7 @@ public class UserControllerTest {
         before();
 
         // given
-        LoginRequest request = new LoginRequest("example1", "example123");
+        LoginRequest request = new LoginRequest("example12f", "example123");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -145,7 +147,7 @@ public class UserControllerTest {
 
         // then
         resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code").value("3002"))
+                .andExpect(jsonPath("code").value("3003"))
                 .andExpect(jsonPath("message").value("권한이 없습니다. 관리자에게 문의하세요."));
 
     }

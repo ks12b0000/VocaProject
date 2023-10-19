@@ -65,7 +65,7 @@ public class AdminServiceImpl implements AdminService {
     public void userApprovalUpdate(ApprovalUpdateRequest request) {
         User user = userRepository.findByLoginId(request.getUserLoginId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
-        user.updateApproval(request.getApproval());
+        user.updateApprovalAndRole(request.getApproval(), request.getRole());
     }
 
     /**
@@ -90,5 +90,17 @@ public class AdminServiceImpl implements AdminService {
             // 중간 관리자는 className만 변경 가능
             user.updateUser(request.getClassName());
         }
+    }
+
+    /**
+     * 유저 삭제
+     * @param userLoginId
+     */
+    @Override
+    @Transactional
+    public void userDelete(String userLoginId) {
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+
+        userRepository.delete(user);
     }
 }

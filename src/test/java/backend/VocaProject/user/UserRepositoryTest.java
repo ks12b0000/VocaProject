@@ -34,7 +34,7 @@ public class UserRepositoryTest {
                 () -> assertThat(saveUser.getUsername()).isEqualTo(user.getUsername()),
                 () -> assertThat(saveUser.getLoginId()).isEqualTo(user.getLoginId()),
                 () -> assertThat(saveUser.getPassword()).isEqualTo(user.getPassword()),
-                () -> assertThat(saveUser.getRole()).isEqualTo("ROLE_USER"), // 유저 저장 시 기본 Role = ROLE_USER
+                () -> assertThat(saveUser.getRole()).isEqualTo("ROLE_NULL"), // 유저 저장 시 기본 Role = ROLE_NULL
                 () -> assertThat(saveUser.getApproval()).isEqualTo("N") // 유저 저장 시 기본 Approval(승인여부) = N
         );
     }
@@ -53,5 +53,18 @@ public class UserRepositoryTest {
                 () -> assertThat(userList2).isNotNull(),
                 () -> assertThat(userList3).isNotNull()
         );
+    }
+
+    @Test
+    @DisplayName("유저 삭제")
+    void userDelete() {
+        // given
+        User saveUser = userRepository.save(user);
+
+        // when
+        userRepository.delete(saveUser);
+
+        // then
+        assertThat(userRepository.findByLoginId(saveUser.getLoginId())).isEmpty();
     }
 }

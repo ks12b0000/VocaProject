@@ -52,4 +52,15 @@ public class AdminController {
         return new BaseResponse("유저 정보 변경에 성공했습니다.");
     }
 
+    @Operation(summary = "유저 삭제 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저 삭제에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @DeleteMapping("/api/master-admin")
+    public BaseResponse userDelete(@RequestParam String userLoginId) {
+        adminService.userDelete(userLoginId);
+
+        return new BaseResponse("유저 삭제에 성공했습니다.");
+    }
+
 }

@@ -123,7 +123,7 @@ public class AdminServiceTest {
          * 유저 승인 여부 Y로 변경
          */
         // when
-        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y");
+        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y", "ROLE_USER");
         adminService.userApprovalUpdate(request);
         // then
         assertThat(user.getApproval()).isEqualTo("Y");
@@ -132,7 +132,7 @@ public class AdminServiceTest {
          * 유저 승인 여부 N으로 변경
          */
         // when
-        request = new ApprovalUpdateRequest(user.getLoginId(), "N");
+        request = new ApprovalUpdateRequest(user.getLoginId(), "N", "ROLE_NULL");
         adminService.userApprovalUpdate(request);
         // then
         assertThat(user.getApproval()).isEqualTo("N");
@@ -191,5 +191,22 @@ public class AdminServiceTest {
          */
         user.setClassName("고등 기초");
         assertThatThrownBy(() -> adminService.userUpdate(admin.getId(), request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
+    }
+
+    @Test
+    @DisplayName("유저 삭제")
+    void userDelete() {
+        // given
+        User user = before();
+
+        // stub
+        when(userRepository.findByLoginId(user.getLoginId())).thenReturn(Optional.of(user));
+
+        // when
+        adminService.userDelete(user.getLoginId());
+
+        when(userRepository.findByLoginId(user.getLoginId())).thenReturn(null);
+        // then
+        assertThat(userRepository.findByLoginId(user.getLoginId())).isNull();
     }
 }

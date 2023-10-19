@@ -13,4 +13,6 @@ public interface AdminService {
     void userApprovalUpdate(ApprovalUpdateRequest request);
 
     void userUpdate(Long adminId, UserUpdateRequest request);
+
+    void userDelete(String userLoginId);
 }

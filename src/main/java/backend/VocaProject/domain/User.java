@@ -40,12 +40,14 @@ public class User {
         this.username = username;
         this.loginId = loginId;
         this.password = password;
-        this.role = "ROLE_USER";
+        this.role = "ROLE_NULL";
         this.approval = "N";
     }
 
-    public void updateApproval(String approval) {
+    // 승인 여부 변경시 role도 같이 변경. (approval = N이면 role = ROLE_NULL, approval = Y이면 role = ROLE_USER)
+    public void updateApprovalAndRole(String approval, String role) {
         this.approval = approval;
+        this.role = role;
     }
 
     // 마스터 관리자가 user Update(password, role, className 변경 가능)

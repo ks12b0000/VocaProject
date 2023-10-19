@@ -92,7 +92,7 @@ public class AdminControllerTest {
         User user = before();
 
         // given
-        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y");
+        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y", "ROLE_USER");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -213,5 +213,23 @@ public class AdminControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value("3003"))
                 .andExpect(jsonPath("message").value("권한이 없습니다. 관리자에게 문의하세요."));
+    }
+
+    @Test
+    @DisplayName("유저 삭제")
+    @WithMockUser(username = "example0933", roles = "MASTER_ADMIN")
+    void userDelete() throws Exception {
+        // given
+        /**
+         * 유저 저장
+         */
+        User user = before();
+        // when
+        ResultActions resultActions = mvc.perform(delete("/api/master-admin?userLoginId=" + user.getLoginId()));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("message").value("유저 삭제에 성공했습니다."));
     }
 }

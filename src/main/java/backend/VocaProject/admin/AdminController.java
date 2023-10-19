@@ -2,6 +2,7 @@ package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
+import backend.VocaProject.admin.dto.UserUpdateRequest;
 import backend.VocaProject.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,10 +35,21 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/api/master-admin/approval/user")
-    public BaseResponse userUpdateApproval(@RequestBody ApprovalUpdateRequest request) {
-        adminService.userUpdateApproval(request);
+    public BaseResponse userApprovalUpdate(@RequestBody ApprovalUpdateRequest request) {
+        adminService.userApprovalUpdate(request);
 
         return new BaseResponse("유저 승인 여부 변경에 성공했습니다.");
+    }
+
+    @Operation(summary = "유저 정보 변경 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저 정보 변경에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @PatchMapping("/api/admin/user-update/{adminId}")
+    public BaseResponse userUpdate(@PathVariable Long adminId, @RequestBody UserUpdateRequest request) {
+        adminService.userUpdate(adminId, request);
+
+        return new BaseResponse("유저 정보 변경에 성공했습니다.");
     }
 
 }

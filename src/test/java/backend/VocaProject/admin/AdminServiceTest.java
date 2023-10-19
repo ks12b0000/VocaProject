@@ -2,6 +2,7 @@ package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
+import backend.VocaProject.admin.dto.UserUpdateRequest;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.user.UserServiceImpl;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -122,7 +124,7 @@ public class AdminServiceTest {
          */
         // when
         ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y");
-        adminService.userUpdateApproval(request);
+        adminService.userApprovalUpdate(request);
         // then
         assertThat(user.getApproval()).isEqualTo("Y");
 
@@ -131,9 +133,63 @@ public class AdminServiceTest {
          */
         // when
         request = new ApprovalUpdateRequest(user.getLoginId(), "N");
-        adminService.userUpdateApproval(request);
+        adminService.userApprovalUpdate(request);
         // then
         assertThat(user.getApproval()).isEqualTo("N");
 
+    }
+
+    @Test
+    @DisplayName("마스터 관리자가 유저 정보 변경")
+    void userUpdate() {
+        // given
+        User admin = before();
+        admin.setRole("ROLE_MASTER_ADMIN");
+        admin.setClassName("master");
+        User user = before();
+
+        // stub
+        when(userRepository.findById(any())).thenReturn(Optional.of(admin));
+        when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
+
+        // when
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), bCryptPasswordEncoder.encode("example123"), "ROLE_MIDDLE_USER", "중등 기초");
+
+        adminService.userUpdate(admin.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(request.getPassword()).isEqualTo(user.getPassword()),
+                () -> assertThat(request.getRole()).isEqualTo(user.getRole()),
+                () -> assertThat(request.getClassName()).isEqualTo(user.getClassName())
+        );
+    }
+    @Test
+    @DisplayName("중간 관리자가 유저 정보 변경")
+    void userUpdate2() {
+        // given
+        User admin = before();
+        admin.setRole("ROLE_MIDDLE_ADMIN");
+        admin.setClassName("중등 기초");
+        User user = before();
+        user.setClassName("중등 기초");
+
+        // stub
+        when(userRepository.findById(any())).thenReturn(Optional.of(admin));
+        when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
+
+        // when
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, null, "중등 기초2");
+
+        adminService.userUpdate(admin.getId(), request);
+
+        // then
+        assertThat(request.getClassName()).isEqualTo(user.getClassName());
+
+        /**
+         * 중간 관리자가 맡은 클래스의 유저가 아닌 경우
+         */
+        user.setClassName("고등 기초");
+        assertThatThrownBy(() -> adminService.userUpdate(admin.getId(), request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
     }
 }

@@ -1,5 +1,6 @@
 package backend.VocaProject.domain;
 
+import backend.VocaProject.admin.dto.UserUpdateRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,4 +48,15 @@ public class User {
         this.approval = approval;
     }
 
+    // 마스터 관리자가 user Update(password, role, className 변경 가능)
+    public void updateUser(String password, String role, String className) {
+        this.password = password;
+        this.role = role;
+        this.className = className;
+    }
+
+    // 중간 관리자가 user Update(className 변경 가능)
+    public void updateUser(String className) {
+        this.className = className;
+    }
 }

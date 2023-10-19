@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,19 +31,14 @@ public class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @DisplayName("테스트에 필요한 유저 저장")
-    public void before() throws Exception {
-        // given
-        JoinRequest request = new JoinRequest("홍길동", "example12f", "example123");
-        String content = new ObjectMapper().writeValueAsString(request);
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-        // when
-        mvc.perform(post("/api/user/join")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content)
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-        );
+    @DisplayName("테스트에 필요한 유저 저장")
+    User before() {
+        User user = new User("홍길동", "example0921", bCryptPasswordEncoder.encode("example0921"));
+        userRepository.save(user);
+        return user;
     }
 
     @Test
@@ -69,14 +65,16 @@ public class UserControllerTest {
     @Test
     @DisplayName("유저 회원가입 실패")
     void joinFail() throws Exception {
-        // 테스트 유저 저장
-        before();
+        /**
+         * 유저 저장
+         */
+        User user = before();
 
         /**
          * 로그인 아이디 중복
          */
         // given
-        JoinRequest request = new JoinRequest("홍길동", "example1", "example123");
+        JoinRequest request = new JoinRequest("홍길동", user.getLoginId(), "example123");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -96,12 +94,14 @@ public class UserControllerTest {
     @Test
     @DisplayName("로그인 아이디 중복 확인")
     void checkLoginIdDuplicate() throws Exception {
-        // 테스트 유저 저장
-        before();
+        /**
+         * 유저 저장
+         */
+        User user = before();
 
         // given
         String loginId = "example12";
-        String duplicateLoginId = "example1";
+        String duplicateLoginId = "example0921";
 
         // when
         ResultActions resultActions = mvc.perform(get("/api/user/duplicate-check?loginId=" + loginId)
@@ -130,11 +130,13 @@ public class UserControllerTest {
     @Test
     @DisplayName("유저 로그인 Approval = N일 경우")
     void loginFail() throws Exception {
-        // 테스트 유저 저장
-        before();
+        /**
+         * 유저 저장
+         */
+        User user = before();
 
         // given
-        LoginRequest request = new LoginRequest("example12f", "example123");
+        LoginRequest request = new LoginRequest(user.getLoginId(), "example0921");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -155,9 +157,14 @@ public class UserControllerTest {
     @Test
     @DisplayName("유저 로그인 Approval = Y일 경우")
     void login() throws Exception {
+        /**
+         * 유저 저장
+         */
+        User user = before();
+        user.setApproval("Y");
+
         // given
-        // 데이터 미리 저장해둠
-        LoginRequest request = new LoginRequest("example000", "example000");
+        LoginRequest request = new LoginRequest("example0921", "example0921");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when

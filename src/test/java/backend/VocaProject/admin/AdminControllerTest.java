@@ -1,9 +1,11 @@
 package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
+import backend.VocaProject.admin.dto.UserUpdateRequest;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.user.dto.JoinRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,13 @@ public class AdminControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @DisplayName("테스트에 필요한 유저 저장")
+    User before() {
+        User user = new User("홍길동", "example0921", "example0921");
+        userRepository.save(user);
+        return user;
+    }
 
     @Test
     @DisplayName("마스터 관리자가 유저 목록 조회")
@@ -80,24 +89,16 @@ public class AdminControllerTest {
         /**
          * 유저 저장
          */
-        JoinRequest request = new JoinRequest("홍길동", "example1221f", "example123");
-        String content = new ObjectMapper().writeValueAsString(request);
-
-        mvc.perform(post("/api/user/join")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content)
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-        );
+        User user = before();
 
         // given
-        ApprovalUpdateRequest request2 = new ApprovalUpdateRequest("example1221f", "Y");
-        String content2 = new ObjectMapper().writeValueAsString(request2);
+        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y");
+        String content = new ObjectMapper().writeValueAsString(request);
 
         // when
         ResultActions resultActions = mvc.perform(patch("/api/master-admin/approval/user")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(content2)
+                .content(content)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
         );
@@ -106,5 +107,111 @@ public class AdminControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("1000"))
                 .andExpect(jsonPath("message").value("유저 승인 여부 변경에 성공했습니다."));
+    }
+
+    @Test
+    @DisplayName("마스터 관리자가 유저 정보 변경")
+    @WithMockUser(username = "example0933", roles = "MASTER_ADMIN")
+    void userUpdate() throws Exception {
+        /**
+         * 마스터 관리자 저장
+         */
+        User admin = before();
+        admin.setClassName("master");
+
+        /**
+         * 유저 저장
+         */
+        User user = new User("홍길동", "example00998f", "example0988231");
+        userRepository.save(user);
+
+        // given
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "example123", "ROLE_USER", "중등 기초");
+        String content = new ObjectMapper().writeValueAsString(request);
+
+        // when
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user-update/" + admin.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("message").value("유저 정보 변경에 성공했습니다."));
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 유저 정보 변경")
+    @WithMockUser(username = "example0933", roles = "MIDDLE_ADMIN")
+    void userUpdate2() throws Exception {
+        /**
+         * 중간 관리자 저장
+         */
+        User admin = before();
+        admin.setClassName("중등 기초");
+
+        /**
+         * 유저 저장
+         */
+        User user = new User("홍길동", "example00998f", "example0988231");
+        userRepository.save(user);
+        user.setClassName("중등 기초");
+
+        // given
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, null, "중등 기초2");
+        String content = new ObjectMapper().writeValueAsString(request);
+
+        // when
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user-update/" + admin.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("message").value("유저 정보 변경에 성공했습니다."));
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 유저 정보 변경 실패")
+    @WithMockUser(username = "example0933", roles = "MIDDLE_ADMIN")
+    void userUpdateFail() throws Exception {
+        /**
+         * 중간 관리자 저장
+         */
+        User admin = before();
+        admin.setClassName("중등 기초");
+
+        /**
+         * 유저 저장
+         */
+        User user = new User("홍길동", "example00998f", "example0988231");
+        userRepository.save(user);
+
+        /**
+         * 중간 관리자가 맡은 클래스의 유저가 아니면 변경 불가
+         */
+        // given
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, null, "중등 기초");
+        String content = new ObjectMapper().writeValueAsString(request);
+
+        // when
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user-update/" + admin.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        );
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value("3003"))
+                .andExpect(jsonPath("message").value("권한이 없습니다. 관리자에게 문의하세요."));
     }
 }

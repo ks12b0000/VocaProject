@@ -2,10 +2,12 @@ package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
+import backend.VocaProject.admin.dto.UserUpdateRequest;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static backend.VocaProject.response.BaseExceptionStatus.NON_EXISTENT_USER;
+import static backend.VocaProject.response.BaseExceptionStatus.WITHOUT_ACCESS_USER;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,6 +24,8 @@ import static backend.VocaProject.response.BaseExceptionStatus.NON_EXISTENT_USER
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
      * 유저 목록 조회
@@ -57,9 +62,33 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     @Transactional
-    public void userUpdateApproval(ApprovalUpdateRequest request) {
+    public void userApprovalUpdate(ApprovalUpdateRequest request) {
         User user = userRepository.findByLoginId(request.getUserLoginId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         user.updateApproval(request.getApproval());
+    }
+
+    /**
+     * 유저 정보 변경
+     * @param adminId
+     * @param request
+     */
+    @Override
+    @Transactional
+    public void userUpdate(Long adminId, UserUpdateRequest request) {
+        User admin = userRepository.findById(adminId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+        User user = userRepository.findByLoginId(request.getUserLoginId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+
+        // 마스터 관리자일 경우 password, role, className 변경 가능
+        if (admin.getClassName().equals("master")) {
+            String enPassword = bCryptPasswordEncoder.encode(request.getPassword());
+            user.updateUser(enPassword, request.getRole(), request.getClassName());
+        }
+        else {
+            // 중간 관리자는 자기가 맡은 클래스의 유저만 변경 가능
+            if (!admin.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
+            // 중간 관리자는 className만 변경 가능
+            user.updateUser(request.getClassName());
+        }
     }
 }

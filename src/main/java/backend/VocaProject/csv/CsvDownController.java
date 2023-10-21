@@ -1,18 +1,17 @@
 package backend.VocaProject.csv;
 
+import backend.VocaProject.response.BaseResponse;
 import com.opencsv.CSVWriter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class CsvDownController {
     private final CsvService csvService;
@@ -29,9 +28,21 @@ public class CsvDownController {
         writer.write("\uFEFF");
         CSVWriter csvWriter = new CSVWriter(writer);
 
-        csvWriter.writeAll(csvService.listVocaBookString(categoryName));
+        csvWriter.writeAll(csvService.csvDown(categoryName));
 
         csvWriter.close();
         writer.close();
+    }
+
+    @PostMapping("/api/csv/insert")
+    public BaseResponse csvInsert(@RequestParam("file") MultipartFile file) throws IOException {
+        String resourceSrc = System.getProperty("user.dir") + "\\src\\main\\resources\\static";
+        File dest = new File(resourceSrc + file.getOriginalFilename());
+        file.transferTo(dest);
+
+        // 파일을 읽어 디비 저장 함수
+        csvService.csvInsert(dest);
+
+        return new BaseResponse("csv 파일 올리기에 성공했습니다.");
     }
 }

@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.Optional;
 
 @NoArgsConstructor
 @Entity
@@ -28,4 +29,9 @@ public class VocaBook {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private VocaBookCategory vocaBookCategory;
 
+    public VocaBook(String word, String meaning, VocaBookCategory vocaBookCategory) {
+        this.word = word;
+        this.meaning = meaning;
+        this.vocaBookCategory = vocaBookCategory;
+    }
 }

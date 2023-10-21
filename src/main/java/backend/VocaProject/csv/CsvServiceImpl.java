@@ -9,8 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static backend.VocaProject.response.BaseExceptionStatus.NON_EXISTENT_BOOK;
 
@@ -24,7 +29,7 @@ public class CsvServiceImpl implements CsvService{
     private final VocaBookCategoryRepository vocaBookCategoryRepository;
 
     @Override
-    public List<String[]> listVocaBookString(String categoryName) {
+    public List<String[]> csvDown(String categoryName) {
         VocaBookCategory category = vocaBookCategoryRepository.findByName(categoryName);
         List<VocaBook> list = vocaBookRepository.findByVocaBookCategory(category);
         List<String[]> listStrings = new ArrayList<>();
@@ -37,5 +42,29 @@ public class CsvServiceImpl implements CsvService{
             listStrings.add(rowData);
         }
         return listStrings;
+    }
+
+    @Override
+    @Transactional
+    public void csvInsert(File dest) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(dest));
+        String line;
+        if((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
+                String[] datalines = line.split(",");
+                try {
+                    String word = datalines[0];
+                    String meaning = datalines[1];
+                    Long categoryId = Long.valueOf(datalines[2]);
+                    Optional<VocaBookCategory> category = vocaBookCategoryRepository.findById(categoryId);
+                    // DB에 데이터 삽입
+                    VocaBook vocaBook = new VocaBook(word, meaning, category.get());
+                    vocaBookRepository.save(vocaBook);
+                } catch (NumberFormatException e) {
+                    continue;  // 첫번째 줄(제목 행) 제외하기 위함
+                }
+            }
+            br.close();
+        }
     }
 }

@@ -6,6 +6,7 @@ import backend.VocaProject.response.BaseException;
 import backend.VocaProject.vocaBook.VocaBookRepository;
 import backend.VocaProject.vocaBookCategory.VocaBookCategoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -57,7 +59,7 @@ public class CsvServiceImpl implements CsvService{
     @Override
     @Transactional
     public void csvInsert(MultipartFile file) throws IOException {
-        String resourceSrc = System.getProperty("user.dir") + "/src/main/resources/static/files/";
+        String resourceSrc = System.getProperty("user.dir");
         File dest = new File(resourceSrc + file.getOriginalFilename());
         file.transferTo(dest);
 

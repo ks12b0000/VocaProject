@@ -2,7 +2,11 @@ package backend.VocaProject.csv;
 
 import backend.VocaProject.response.BaseResponse;
 import com.opencsv.CSVWriter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,11 +15,15 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-public class CsvDownController {
+@Tag(name = "Csv", description = "Csv 관련 API")
+public class CsvController {
     private final CsvService csvService;
 
+    @Operation(summary = "Csv 내려받기 API")
+    @Tag(name = "Csv")
     @GetMapping("/api/csv/down")
     public void csvDown(HttpServletResponse response, @RequestParam String categoryName) throws IOException {
         response.setContentType("text/csv; charset=UTF-8"); // Set the character encoding
@@ -34,14 +42,14 @@ public class CsvDownController {
         writer.close();
     }
 
+    @Operation(summary = "Csv 올리기 API", responses = {
+            @ApiResponse(responseCode = "200", description = "csv 파일 올리기에 성공했습니다.")
+    })
+    @Tag(name = "Csv")
     @PostMapping("/api/csv/insert")
     public BaseResponse csvInsert(@RequestParam("file") MultipartFile file) throws IOException {
-        String resourceSrc = System.getProperty("user.dir") + "\\src\\main\\resources\\static";
-        File dest = new File(resourceSrc + file.getOriginalFilename());
-        file.transferTo(dest);
-
         // 파일을 읽어 디비 저장 함수
-        csvService.csvInsert(dest);
+        csvService.csvInsert(file);
 
         return new BaseResponse("csv 파일 올리기에 성공했습니다.");
     }

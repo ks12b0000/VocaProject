@@ -8,6 +8,7 @@ import backend.VocaProject.vocaBookCategory.VocaBookCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static backend.VocaProject.response.BaseExceptionStatus.NON_EXISTENT_BOOK;
 
 @Service
 @Transactional(readOnly = true)
@@ -28,6 +28,11 @@ public class CsvServiceImpl implements CsvService{
 
     private final VocaBookCategoryRepository vocaBookCategoryRepository;
 
+    /**
+     * Csv 내려받기
+     * @param categoryName
+     * @return
+     */
     @Override
     public List<String[]> csvDown(String categoryName) {
         VocaBookCategory category = vocaBookCategoryRepository.findByName(categoryName);
@@ -44,9 +49,18 @@ public class CsvServiceImpl implements CsvService{
         return listStrings;
     }
 
+    /**
+     * Csv 올리기
+     * @param file
+     * @throws IOException
+     */
     @Override
     @Transactional
-    public void csvInsert(File dest) throws IOException {
+    public void csvInsert(MultipartFile file) throws IOException {
+        String resourceSrc = System.getProperty("user.dir") + "/src/main/resources/static/files/";
+        File dest = new File(resourceSrc + file.getOriginalFilename());
+        file.transferTo(dest);
+
         BufferedReader br = new BufferedReader(new FileReader(dest));
         String line;
         if((line = br.readLine()) != null) {

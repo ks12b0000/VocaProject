@@ -23,8 +23,8 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "유저 전체 목록 조회에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @GetMapping("/api/admin/user-list/{adminId}")
-    public BaseResponse userList(@PathVariable Long adminId, @RequestParam String className, @RequestParam String approval) {
+    @GetMapping("/api/admin/user/list")
+    public BaseResponse userList(@RequestParam Long adminId, @RequestParam String className, @RequestParam String approval) {
         List<UserListResponse> response = adminService.userList(adminId, className, approval);
 
         return new BaseResponse("유저 전체 목록 조회에 성공했습니다.", response);
@@ -34,7 +34,7 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "유저 승인 여부 변경에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @PatchMapping("/api/master-admin/approval/user")
+    @PatchMapping("/api/master-admin/user/approval")
     public BaseResponse userApprovalUpdate(@RequestBody ApprovalUpdateRequest request) {
         adminService.userApprovalUpdate(request);
 
@@ -45,8 +45,8 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "유저 정보 변경에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @PatchMapping("/api/admin/user-update/{adminId}")
-    public BaseResponse userUpdate(@PathVariable Long adminId, @RequestBody UserUpdateRequest request) {
+    @PatchMapping("/api/admin/user")
+    public BaseResponse userUpdate(@RequestParam Long adminId, @RequestBody UserUpdateRequest request) {
         adminService.userUpdate(adminId, request);
 
         return new BaseResponse("유저 정보 변경에 성공했습니다.");
@@ -56,7 +56,7 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "유저 삭제에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @DeleteMapping("/api/master-admin")
+    @DeleteMapping("/api/master-admin/user")
     public BaseResponse userDelete(@RequestParam String userLoginId) {
         adminService.userDelete(userLoginId);
 

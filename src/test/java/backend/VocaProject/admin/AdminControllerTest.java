@@ -47,11 +47,11 @@ public class AdminControllerTest {
         // given
         // when
         // 마스터가 전체 승인 여부가 Y인 유저 전체 목록 조회
-        ResultActions resultActions = mvc.perform(get("/api/admin/user-list/2?className=all&approval=Y"));
+        ResultActions resultActions = mvc.perform(get("/api/admin/user/list?adminId=2&className=all&approval=Y"));
         // 마스터 관리자가 전체 승인 여부가 N인 유저 전체 목록 조회
-        ResultActions resultActions2 = mvc.perform(get("/api/admin/user-list/2?className=all&approval=N"));
+        ResultActions resultActions2 = mvc.perform(get("/api/admin/user/list?adminId=2&className=all&approval=N"));
         // 마스터 관리자가 전체 승인 여부가 Y인 keyword에 맞는 클래스 유저 목록 조회
-        ResultActions resultActions3 = mvc.perform(get("/api/admin/user-list/2?className=중등 기초&approval=Y"));
+        ResultActions resultActions3 = mvc.perform(get("/api/admin/user/list?adminId=2&className=중등 기초&approval=Y"));
 
         // then
         resultActions.andExpect(status().isOk())
@@ -74,7 +74,7 @@ public class AdminControllerTest {
         // given
         // when
         // 중간 관리자가 자기가 맡은 클래스의 승인 여부가 Y인 유저 목록만 조회
-        ResultActions resultActions = mvc.perform(get("/api/admin/user-list/2?className=&approval="));
+        ResultActions resultActions = mvc.perform(get("/api/admin/user/list?adminId=2&className=&approval="));
 
         // then
         resultActions.andExpect(status().isOk())
@@ -96,7 +96,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/master-admin/approval/user")
+        ResultActions resultActions = mvc.perform(patch("/api/master-admin/user/approval")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -130,7 +130,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user-update/" + admin.getId())
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user?adminId=" + admin.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -165,7 +165,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user-update/" + admin.getId())
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user?adminId=" + admin.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -202,7 +202,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user-update/" + admin.getId())
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user?adminId=" + admin.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -225,7 +225,7 @@ public class AdminControllerTest {
          */
         User user = before();
         // when
-        ResultActions resultActions = mvc.perform(delete("/api/master-admin?userLoginId=" + user.getLoginId()));
+        ResultActions resultActions = mvc.perform(delete("/api/master-admin/user?userLoginId=" + user.getLoginId()));
 
         // then
         resultActions.andExpect(status().isOk())

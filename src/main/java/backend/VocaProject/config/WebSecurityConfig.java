@@ -22,12 +22,6 @@ public class WebSecurityConfig {
     @Value("${JWT_SECRET_KEY}")
     private String JWT_SECRET_KEY;
 
-
-//    @Bean
-//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http

@@ -8,7 +8,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Getter
-public class VocaBookCategory {
+public class VocabularyBookCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

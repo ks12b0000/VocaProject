@@ -6,12 +6,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.Optional;
 
 @NoArgsConstructor
 @Entity
 @Getter
-public class VocaBook {
+public class VocabularyBook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +26,11 @@ public class VocaBook {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private VocaBookCategory vocaBookCategory;
+    private VocabularyBookCategory vocabularyBookCategory;
 
-    public VocaBook(String word, String meaning, VocaBookCategory vocaBookCategory) {
+    public VocabularyBook(String word, String meaning, VocabularyBookCategory vocabularyBookCategory) {
         this.word = word;
         this.meaning = meaning;
-        this.vocaBookCategory = vocaBookCategory;
+        this.vocabularyBookCategory = vocabularyBookCategory;
     }
 }

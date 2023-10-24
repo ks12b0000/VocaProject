@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "VocabularyBook", description = "단어장 API")
 public class VocabularyBookController {
 
-    private final VocabularyBookService vocaBookService;
+    private final VocabularyBookService vocabularyBookService;
 
 }

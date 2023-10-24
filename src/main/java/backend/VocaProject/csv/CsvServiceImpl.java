@@ -2,9 +2,8 @@ package backend.VocaProject.csv;
 
 import backend.VocaProject.domain.VocaBook;
 import backend.VocaProject.domain.VocaBookCategory;
-import backend.VocaProject.response.BaseException;
-import backend.VocaProject.vocaBook.VocaBookRepository;
-import backend.VocaProject.vocaBookCategory.VocaBookCategoryRepository;
+import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
+import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CsvServiceImpl implements CsvService{
 
-    private final VocaBookRepository vocaBookRepository;
+    private final VocabularyBookRepository vocabularyBookRepository;
 
-    private final VocaBookCategoryRepository vocaBookCategoryRepository;
+    private final VocabularyBookCategoryRepository vocabularyBookCategoryRepository;
 
     /**
      * Csv 내려받기
@@ -37,8 +36,8 @@ public class CsvServiceImpl implements CsvService{
      */
     @Override
     public List<String[]> csvDown(String categoryName) {
-        VocaBookCategory category = vocaBookCategoryRepository.findByName(categoryName);
-        List<VocaBook> list = vocaBookRepository.findByVocaBookCategory(category);
+        VocaBookCategory category = vocabularyBookCategoryRepository.findByName(categoryName);
+        List<VocaBook> list = vocabularyBookRepository.findByVocaBookCategory(category);
         List<String[]> listStrings = new ArrayList<>();
         listStrings.add(new String[]{"단어", "의미", "단어장 카테고리"});
         for (VocaBook book: list) {
@@ -72,10 +71,10 @@ public class CsvServiceImpl implements CsvService{
                     String word = datalines[0];
                     String meaning = datalines[1];
                     Long categoryId = Long.valueOf(datalines[2]);
-                    Optional<VocaBookCategory> category = vocaBookCategoryRepository.findById(categoryId);
+                    Optional<VocaBookCategory> category = vocabularyBookCategoryRepository.findById(categoryId);
                     // DB에 데이터 삽입
                     VocaBook vocaBook = new VocaBook(word, meaning, category.get());
-                    vocaBookRepository.save(vocaBook);
+                    vocabularyBookRepository.save(vocaBook);
                 } catch (NumberFormatException e) {
                     continue;  // 첫번째 줄(제목 행) 제외하기 위함
                 }

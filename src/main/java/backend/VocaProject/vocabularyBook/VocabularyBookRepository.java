@@ -1,4 +1,4 @@
-package backend.VocaProject.vocaBook;
+package backend.VocaProject.vocabularyBook;
 
 import backend.VocaProject.domain.VocaBook;
 import backend.VocaProject.domain.VocaBookCategory;
@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface VocaBookRepository extends JpaRepository<VocaBook, Long> {
+public interface VocabularyBookRepository extends JpaRepository<VocaBook, Long> {
     List<VocaBook> findByVocaBookCategory(VocaBookCategory vocaBookCategory);
 }

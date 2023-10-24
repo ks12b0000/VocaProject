@@ -4,6 +4,8 @@ services:
   database:
     container_name: voca_db
     image: mysql/mysql-server:8.0.32
+    volumes:
+      - ./db/mysql/data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: voca_db
       MYSQL_ROOT_HOST: '%'

@@ -63,4 +63,15 @@ public class AdminController {
         return new BaseResponse("유저 삭제에 성공했습니다.");
     }
 
+    @Operation(summary = "단어장 삭제 API", responses = {
+            @ApiResponse(responseCode = "200", description = "단어장 삭제에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @PostMapping("/api/master-admin/vocabulary-book")
+    public BaseResponse vocabularyBookDelete(@RequestParam Long categoryId) {
+        adminService.vocabularyBookDelete(categoryId);
+
+        return new BaseResponse("단어장 삭제에 성공했습니다.");
+    }
+
 }

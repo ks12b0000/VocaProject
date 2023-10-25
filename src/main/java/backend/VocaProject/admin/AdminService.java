@@ -15,4 +15,6 @@ public interface AdminService {
     void userUpdate(Long adminId, UserUpdateRequest request);
 
     void userDelete(String userLoginId);
+
+    void vocabularyBookDelete(Long categoryId);
 }

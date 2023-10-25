@@ -4,8 +4,11 @@ import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
 import backend.VocaProject.admin.dto.UserUpdateRequest;
 import backend.VocaProject.domain.User;
+import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.user.UserRepository;
+import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
+import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static backend.VocaProject.response.BaseExceptionStatus.NON_EXISTENT_USER;
-import static backend.VocaProject.response.BaseExceptionStatus.WITHOUT_ACCESS_USER;
+import static backend.VocaProject.response.BaseExceptionStatus.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,6 +28,10 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final VocabularyBookRepository vocabularyBookRepository;
+
+    private final VocabularyBookCategoryRepository vocabularyBookCategoryRepository;
 
     /**
      * 유저 목록 조회
@@ -102,5 +108,17 @@ public class AdminServiceImpl implements AdminService {
         User user = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         userRepository.delete(user);
+    }
+
+    /**
+     * 단어장 삭제
+     * @param categoryId
+     */
+    @Override
+    @Transactional
+    public void vocabularyBookDelete(Long categoryId) {
+        VocabularyBookCategory vocabularyBookCategory = vocabularyBookCategoryRepository.findById(categoryId).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
+
+        vocabularyBookRepository.deleteByVocabularyBookCategory(vocabularyBookCategory);
     }
 }

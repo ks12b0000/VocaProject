@@ -39,3 +39,4 @@ out/
 application.yml
 .DS_Store
 files
+db/

@@ -4,7 +4,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+VocaProject/db/
 ### STS ###
 .apt_generated
 .classpath
@@ -39,4 +39,3 @@ out/
 application.yml
 .DS_Store
 files
-/db/

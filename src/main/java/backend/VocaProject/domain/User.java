@@ -51,8 +51,7 @@ public class User {
     }
 
     // 마스터 관리자가 user Update(password, role, className 변경 가능)
-    public void updateUser(String password, String role, String className) {
-        this.password = password;
+    public void updateUser(String role, String className) {
         this.role = role;
         this.className = className;
     }
@@ -60,5 +59,9 @@ public class User {
     // 중간 관리자가 user Update(className 변경 가능)
     public void updateUser(String className) {
         this.className = className;
+    }
+
+    public void updateUserPassword(String password) {
+        this.password = password;
     }
 }

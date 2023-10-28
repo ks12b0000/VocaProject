@@ -2,6 +2,7 @@ package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
+import backend.VocaProject.admin.dto.UserUpdatePwRequest;
 import backend.VocaProject.admin.dto.UserUpdateRequest;
 import backend.VocaProject.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,22 +20,33 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @Operation(summary = "유저 전체 목록 조회 API", responses = {
-            @ApiResponse(responseCode = "200", description = "유저 전체 목록 조회에 성공했습니다.")
+    @Operation(summary = "유저 목록 조회 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저 목록 조회에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @GetMapping("/api/admin/user/list")
+    @GetMapping("/api/admin/users")
     public BaseResponse userList(@RequestParam Long adminId, @RequestParam String className, @RequestParam String approval) {
         List<UserListResponse> response = adminService.userList(adminId, className, approval);
 
-        return new BaseResponse("유저 전체 목록 조회에 성공했습니다.", response);
+        return new BaseResponse("유저 목록 조회에 성공했습니다.", response);
+    }
+
+    @Operation(summary = "유저 승인X 목록 조회 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저 승인X 목록 조회에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @GetMapping("/api/admin/non-approval/users")
+    public BaseResponse userNonApprovalList() {
+        List<UserListResponse> response = adminService.userNonApprovalList();
+
+        return new BaseResponse("유저 승인X 목록 조회에 성공했습니다.", response);
     }
 
     @Operation(summary = "유저 승인 여부 변경 API", responses = {
             @ApiResponse(responseCode = "200", description = "유저 승인 여부 변경에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @PatchMapping("/api/master-admin/user/approval")
+    @PatchMapping("/api/admin/user/approval")
     public BaseResponse userApprovalUpdate(@RequestBody ApprovalUpdateRequest request) {
         adminService.userApprovalUpdate(request);
 
@@ -52,6 +64,17 @@ public class AdminController {
         return new BaseResponse("유저 정보 변경에 성공했습니다.");
     }
 
+    @Operation(summary = "유저 비밀번호 변경 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저 비밀번호 변경에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @PatchMapping("/api/admin/user/password")
+    public BaseResponse userPasswordUpdate(@RequestParam Long adminId, @RequestParam String userLoginId, @RequestBody UserUpdatePwRequest request) {
+        adminService.userPasswordUpdate(adminId, userLoginId, request);
+
+        return new BaseResponse("유저 비밀번호 변경에 성공했습니다.");
+    }
+
     @Operation(summary = "유저 삭제 API", responses = {
             @ApiResponse(responseCode = "200", description = "유저 삭제에 성공했습니다.")
     })
@@ -67,7 +90,7 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "단어장 삭제에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @PostMapping("/api/master-admin/vocabulary-book")
+    @DeleteMapping("/api/master-admin/vocabulary-book")
     public BaseResponse vocabularyBookDelete(@RequestParam Long categoryId) {
         adminService.vocabularyBookDelete(categoryId);
 

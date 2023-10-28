@@ -25,8 +25,8 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @GetMapping("/api/admin/users")
-    public BaseResponse userList(@RequestParam Long adminId, @RequestParam String className, @RequestParam String approval) {
-        List<UserListResponse> response = adminService.userList(adminId, className, approval);
+    public BaseResponse userList(@RequestParam Long adminId, @RequestParam String className) {
+        List<UserListResponse> response = adminService.userList(adminId, className);
 
         return new BaseResponse("유저 목록 조회에 성공했습니다.", response);
     }

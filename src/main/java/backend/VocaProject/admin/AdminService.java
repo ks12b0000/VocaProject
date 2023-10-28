@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface AdminService {
 
-    List<UserListResponse> userList(Long adminId, String className, String approval);
+    List<UserListResponse> userList(Long adminId, String className);
 
     List<UserListResponse> userNonApprovalList();
 

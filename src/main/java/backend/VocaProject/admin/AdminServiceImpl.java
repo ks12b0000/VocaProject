@@ -39,14 +39,21 @@ public class AdminServiceImpl implements AdminService {
      * @return
      */
     @Override
-    public List<UserListResponse> userList(Long adminId, String className, String approval) {
+    public List<UserListResponse> userList(Long adminId, String className) {
         User user = userRepository.findById(adminId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         // 유저의 클래스 이름이 master면(마스터 관리자)
         if (user.getClassName().equals("master")) {
-            // 입력한 keyword에 맞는 클래스의 승인 여부가 Y인 유저 목록
-            List<UserListResponse> listByClass = userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
-            return listByClass;
+            // 입력한 keyword가 all 이면 전체 유저 목록 조회
+            if (className.equals("all")) {
+                List<UserListResponse> allList = userRepository.findByApproval("Y").stream().map(UserListResponse::new).collect(Collectors.toList());
+                return allList;
+            }
+            else {
+                // 입력한 keyword에 맞는 클래스의 승인 여부가 Y인 유저 목록
+                List<UserListResponse> listByClass = userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
+                return listByClass;
+            }
         }
         // 중간 관리자가 요청했을 경우 자기가 맡은 클래스의 승인 여부가 Y인 유저 목록만 조회
         else {

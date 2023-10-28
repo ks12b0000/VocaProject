@@ -67,23 +67,19 @@ public class AdminServiceTest {
 
         // stub
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
-        when(userRepository.findByApproval("Y")).thenReturn(list);
-        when(userRepository.findByApproval("N")).thenReturn(list);
         when(userRepository.findByClassNameAndApproval(any(), any())).thenReturn(list);
 
         // when
         // 마스터 관리자가 전체 승인 여부가 Y인 유저 전체 목록 조회
-        List<UserListResponse> responses = adminService.userList(user.getId(), "all", "Y");
-        // 마스터 관리자가 전체 승인 여부가 N인 유저 전체 목록 조회
-        List<UserListResponse> responses2 = adminService.userList(user.getId(), "all", "N");
+        List<UserListResponse> responses = adminService.userList(user.getId(), "all");
+
         // 마스터 관리자가 전체 승인 여부가 Y인 keyword에 맞는 클래스 유저 목록 조회
-        List<UserListResponse> responses3 = adminService.userList(user.getId(), "중등 기초", "Y");
+        List<UserListResponse> responses2 = adminService.userList(user.getId(), "중등 기초");
 
         // then
         assertAll(
                 () -> assertThat(responses).isNotNull(),
-                () -> assertThat(responses2).isNotNull(),
-                () -> assertThat(responses3).isNotNull()
+                () -> assertThat(responses2).isNotNull()
         );
     }
 
@@ -104,7 +100,7 @@ public class AdminServiceTest {
 
         // when
         // 중간 관리자에 클래스별 승인 여부가 Y인 유저 목록 조회
-        List<UserListResponse> responses = adminService.userList(user.getId(), null, null);
+        List<UserListResponse> responses = adminService.userList(user.getId(), null);
 
         // then
         assertThat(responses).isNotNull();
@@ -153,13 +149,12 @@ public class AdminServiceTest {
         when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
 
         // when
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), bCryptPasswordEncoder.encode("example123"), "ROLE_MIDDLE_USER", "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "ROLE_MIDDLE_USER", "중등 기초");
 
         adminService.userUpdate(admin.getId(), request);
 
         // then
         assertAll(
-                () -> assertThat(request.getPassword()).isEqualTo(user.getPassword()),
                 () -> assertThat(request.getRole()).isEqualTo(user.getRole()),
                 () -> assertThat(request.getClassName()).isEqualTo(user.getClassName())
         );
@@ -179,7 +174,7 @@ public class AdminServiceTest {
         when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
 
         // when
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, null, "중등 기초2");
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초2");
 
         adminService.userUpdate(admin.getId(), request);
 

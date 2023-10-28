@@ -47,24 +47,18 @@ public class AdminControllerTest {
         // given
         // when
         // 마스터가 전체 승인 여부가 Y인 유저 전체 목록 조회
-        ResultActions resultActions = mvc.perform(get("/api/admin/user/list?adminId=2&className=all&approval=Y"));
-        // 마스터 관리자가 전체 승인 여부가 N인 유저 전체 목록 조회
-        ResultActions resultActions2 = mvc.perform(get("/api/admin/user/list?adminId=2&className=all&approval=N"));
+        ResultActions resultActions = mvc.perform(get("/api/admin/users?adminId=2&className=all"));
         // 마스터 관리자가 전체 승인 여부가 Y인 keyword에 맞는 클래스 유저 목록 조회
-        ResultActions resultActions3 = mvc.perform(get("/api/admin/user/list?adminId=2&className=중등 기초&approval=Y"));
+        ResultActions resultActions2 = mvc.perform(get("/api/admin/users?adminId=2&className=중등 기초"));
 
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("1000"))
-                .andExpect(jsonPath("message").value("유저 전체 목록 조회에 성공했습니다."));
+                .andExpect(jsonPath("message").value("유저 목록 조회에 성공했습니다."));
 
         resultActions2.andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("1000"))
-                .andExpect(jsonPath("message").value("유저 전체 목록 조회에 성공했습니다."));
-
-        resultActions3.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
-                .andExpect(jsonPath("message").value("유저 전체 목록 조회에 성공했습니다."));
+                .andExpect(jsonPath("message").value("유저 목록 조회에 성공했습니다."));
     }
 
     @Test
@@ -74,12 +68,12 @@ public class AdminControllerTest {
         // given
         // when
         // 중간 관리자가 자기가 맡은 클래스의 승인 여부가 Y인 유저 목록만 조회
-        ResultActions resultActions = mvc.perform(get("/api/admin/user/list?adminId=2&className=&approval="));
+        ResultActions resultActions = mvc.perform(get("/api/admin/users?adminId=2&className="));
 
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("1000"))
-                .andExpect(jsonPath("message").value("유저 전체 목록 조회에 성공했습니다."));
+                .andExpect(jsonPath("message").value("유저 목록 조회에 성공했습니다."));
     }
 
     @Test
@@ -96,7 +90,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/master-admin/user/approval")
+        ResultActions resultActions = mvc.perform(patch("/api/admin/user/approval")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -126,7 +120,7 @@ public class AdminControllerTest {
         userRepository.save(user);
 
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "example123", "ROLE_USER", "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "ROLE_USER", "중등 기초");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -161,7 +155,7 @@ public class AdminControllerTest {
         user.setClassName("중등 기초");
 
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, null, "중등 기초2");
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초2");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -198,7 +192,7 @@ public class AdminControllerTest {
          * 중간 관리자가 맡은 클래스의 유저가 아니면 변경 불가
          */
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, null, "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when

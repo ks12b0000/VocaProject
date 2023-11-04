@@ -39,12 +39,13 @@ public class CsvServiceImpl implements CsvService{
         VocabularyBookCategory category = vocabularyBookCategoryRepository.findByName(categoryName);
         List<VocabularyBook> list = vocabularyBookRepository.findByVocabularyBookCategory(category);
         List<String[]> listStrings = new ArrayList<>();
-        listStrings.add(new String[]{"단어", "의미", "단어장 카테고리"});
+        listStrings.add(new String[]{"단어", "의미", "Day", "단어장 카테고리"});
         for (VocabularyBook book: list) {
             String[] rowData = new String[3];
             rowData[0] = book.getWord();
             rowData[1] = book.getMeaning();
-            rowData[2] = String.valueOf(book.getVocabularyBookCategory().getId());
+            rowData[2] = String.valueOf(book.getDay());
+            rowData[3] = String.valueOf(book.getVocabularyBookCategory().getId());
             listStrings.add(rowData);
         }
         return listStrings;
@@ -64,22 +65,25 @@ public class CsvServiceImpl implements CsvService{
 
         BufferedReader br = new BufferedReader(new FileReader(dest));
         String line;
+        List<VocabularyBook> vocabularyBooks = new ArrayList<>();
         if((line = br.readLine()) != null) {
             while ((line = br.readLine()) != null) {
-                String[] datalines = line.split(",");
+                String[] datalines = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)",-1);
                 try {
                     String word = datalines[0];
-                    String meaning = datalines[1];
-                    Long categoryId = Long.valueOf(datalines[2]);
+                    String meaning = datalines[1].replaceAll("\"", "");
+                    int day = Integer.parseInt(datalines[2]);
+                    Long categoryId = Long.valueOf(datalines[3]);
                     Optional<VocabularyBookCategory> category = vocabularyBookCategoryRepository.findById(categoryId);
-                    // DB에 데이터 삽입
-                    VocabularyBook vocabularyBook = new VocabularyBook(word, meaning, category.get());
-                    vocabularyBookRepository.save(vocabularyBook);
+                    // DB에 데이터
+                    VocabularyBook vocabularyBook = new VocabularyBook(word, meaning, day, category.get());
+                    vocabularyBooks.add(vocabularyBook);
                 } catch (NumberFormatException e) {
                     continue;  // 첫번째 줄(제목 행) 제외하기 위함
                 }
             }
             br.close();
         }
+        vocabularyBookRepository.saveAll(vocabularyBooks);
     }
 }

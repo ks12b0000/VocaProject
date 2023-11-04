@@ -23,14 +23,18 @@ public class VocabularyBook {
     @Column(length = 50, nullable = false)
     private String meaning;
 
+    @Column(length = 5, nullable = false)
+    private int day;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private VocabularyBookCategory vocabularyBookCategory;
 
-    public VocabularyBook(String word, String meaning, VocabularyBookCategory vocabularyBookCategory) {
+    public VocabularyBook(String word, String meaning, int day, VocabularyBookCategory vocabularyBookCategory) {
         this.word = word;
         this.meaning = meaning;
+        this.day = day;
         this.vocabularyBookCategory = vocabularyBookCategory;
     }
 }

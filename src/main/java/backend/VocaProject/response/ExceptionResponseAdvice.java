@@ -2,6 +2,7 @@ package backend.VocaProject.response;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,22 +17,15 @@ import java.util.List;
 public class ExceptionResponseAdvice {
 
     @ExceptionHandler(BaseException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST) //응답코드: 400 에러로 일단 통일
-    public BaseResponse handlerBaseException(BaseException e){
-        return new BaseResponse(e.getStatus());
+    public ResponseEntity<BaseResponse> handlerBaseException(BaseException e){
+        BaseResponse response = new BaseResponse(e.getStatus().getCode().value(), e.getMessage());
+        log.error("ErrorException {}",e.getMessage());
+        return new ResponseEntity<>(response, e.getStatus().getCode());
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public BaseResponse handlerException(Exception e){
-        e.printStackTrace();
-        return new BaseResponse(BaseExceptionStatus.SERVER_INTERNAL_ERROR);
-    }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public BaseResponse ValidAnotaionHandler(BindingResult bindingResult){
+    @ResponseStatus(code = HttpStatus.UNPROCESSABLE_ENTITY)
+    public BaseResponse ValidExceptionHandler(BindingResult bindingResult){
 
         List<ObjectError> errors = bindingResult.getAllErrors();
         for(ObjectError error: errors){
@@ -39,6 +33,6 @@ public class ExceptionResponseAdvice {
         }
 
         String errorReason = errors.get(0).getDefaultMessage();
-        return new BaseResponse(2001, errorReason);
+        return new BaseResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), errorReason);
     }
 }

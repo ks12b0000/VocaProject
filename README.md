@@ -15,10 +15,7 @@
 - [Skils](#skils)
 - [ERD](#erd)
 - [API Reference](#api-reference)
-- [구현과정(설계 및 의도)](<#구현과정(설계-및-의도)>)
-- [TIL 및 회고](#til-및-회고)
-- [Authors](#authors)
-- [References](#references)
+- [구현과정](#구현과정)
 
 <br/>
 
@@ -50,7 +47,7 @@
 
 <br/>
 
-## 구현과정(설계 및 의도)
+## 구현과정
 
 <details>
 <summary>Admin - click</summary>

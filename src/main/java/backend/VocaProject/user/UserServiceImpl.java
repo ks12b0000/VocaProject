@@ -1,11 +1,11 @@
 package backend.VocaProject.user;
 
 import backend.VocaProject.domain.User;
+import backend.VocaProject.jwt.RefreshTokenService;
+import backend.VocaProject.jwt.dto.GeneratedToken;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.user.dto.JoinRequest;
 import backend.VocaProject.user.dto.LoginRequest;
-import backend.VocaProject.user.dto.LoginResponse;
-import backend.VocaProject.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static backend.VocaProject.jwt.JwtTokenUtil.generateAccessToken;
+import static backend.VocaProject.jwt.JwtTokenUtil.generateRefreshToken;
 import static backend.VocaProject.response.BaseExceptionStatus.*;
 
 @Service
@@ -25,6 +27,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final RefreshTokenService tokenService;
 
     /**
      * 유저 회원가입
@@ -58,29 +62,12 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * loginId(String)를 입력받아 User을 return 해주는 기능
-     * 인증, 인가 시 사용
-     * loginId가 null이거나(로그인 X) userId로 찾아온 User가 없으면 null return
-     * loginId로 찾아온 User가 존재하면 User return
-     * @param loginId
-     * @return
-     */
-    public User getLoginUserByLoginId(String loginId) {
-        if (loginId == null) return null;
-
-        Optional<User> user = userRepository.findByLoginId(loginId);
-        if (user.isEmpty()) return null;
-
-        return user.get();
-    }
-
-    /**
      * 유저 로그인
      * @param request
      * @return
      */
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public GeneratedToken login(LoginRequest request) {
         // 로그인 아이디로 유저 있는지 확인
         User user = userRepository.findByLoginId(request.getLoginId()).orElseThrow(() -> new BaseException(LOGIN_USER_NOT_EXIST));
 
@@ -92,10 +79,12 @@ public class UserServiceImpl implements UserService {
         // 승인되지 않은 유저일 경우
         if (user.getApproval().equals("N")) throw new BaseException(WITHOUT_ACCESS_USER);
 
-        String jwtToken = JwtTokenUtil.createToken(user.getLoginId());
+        String refreshToken = generateRefreshToken(user.getLoginId(), user.getRole());
+        String accessToken = generateAccessToken(user.getLoginId(), user.getRole());
 
-        LoginResponse loginResponse = new LoginResponse(user.getId(), jwtToken, user.getRole());
+        // 토큰을 Redis에 저장한다.
+        tokenService.saveTokenInfo(user.getLoginId(), refreshToken, accessToken);
 
-        return loginResponse;
+        return new GeneratedToken(accessToken, refreshToken);
     }
 }

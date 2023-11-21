@@ -11,6 +11,7 @@ import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +40,8 @@ public class AdminServiceImpl implements AdminService {
      * @return
      */
     @Override
-    public List<UserListResponse> userList(Long adminId, String className) {
-        User user = userRepository.findById(adminId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+    public List<UserListResponse> userList(Authentication admin, String className) {
+        User user = (User) admin.getPrincipal();
 
         // 유저의 클래스 이름이 master면(마스터 관리자)
         if (user.getClassName().equals("master")) {
@@ -86,22 +87,22 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 유저 정보 변경
-     * @param adminId
+     * @param admin
      * @param request
      */
     @Override
     @Transactional
-    public void userUpdate(Long adminId, UserUpdateRequest request) {
-        User admin = userRepository.findById(adminId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+    public void userUpdate(Authentication admin, UserUpdateRequest request) {
+        User adminUser = (User) admin.getPrincipal();
         User user = userRepository.findByLoginId(request.getUserLoginId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         // 마스터 관리자일 경우 role, className 변경 가능
-        if (admin.getClassName().equals("master")) {
+        if (adminUser.getClassName().equals("master")) {
             user.updateUser(request.getRole(), request.getClassName());
         }
         else {
             // 중간 관리자는 자기가 맡은 클래스의 유저만 변경 가능
-            if (!admin.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
+            if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
             // 중간 관리자는 className만 변경 가능
             user.updateUser(request.getClassName());
         }
@@ -109,22 +110,22 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 유저 비밀번호 변경
-     * @param adminId
+     * @param admin
      * @param request
      */
     @Override
     @Transactional
-    public void userPasswordUpdate(Long adminId, String userLoginId, UserUpdatePwRequest request) {
-        User admin = userRepository.findById(adminId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+    public void userPasswordUpdate(Authentication admin, String userLoginId, UserUpdatePwRequest request) {
+        User adminUser = (User) admin.getPrincipal();
         User user = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
         String enPassword = bCryptPasswordEncoder.encode(request.getPassword());
 
-        if (admin.getClassName().equals("master")) {
+        if (adminUser.getClassName().equals("master")) {
             user.updateUserPassword(enPassword);
         }
         else {
             // 중간 관리자는 자기가 맡은 클래스의 유저만 변경 가능
-            if (!admin.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
+            if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
             user.updateUserPassword(enPassword);
         }
     }

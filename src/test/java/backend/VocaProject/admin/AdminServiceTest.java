@@ -14,6 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +48,8 @@ public class AdminServiceTest {
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+
     @DisplayName("테스트를 위한 유저 저장")
     User before() {
         // given
@@ -59,22 +67,23 @@ public class AdminServiceTest {
     void userList() {
         // given
         User user = before();
-        user.setRole("ROLE_MASTER_ADMIN");
         user.setClassName("master");
-
+        user.setRole("ROLE_MASTER_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
         List<User> list = new ArrayList<>();
         list.add(user);
 
         // stub
-        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
         when(userRepository.findByClassNameAndApproval(any(), any())).thenReturn(list);
 
         // when
         // 마스터 관리자가 전체 승인 여부가 Y인 유저 전체 목록 조회
-        List<UserListResponse> responses = adminService.userList(user.getId(), "all");
+        List<UserListResponse> responses = adminService.userList(admin, "all");
 
         // 마스터 관리자가 전체 승인 여부가 Y인 keyword에 맞는 클래스 유저 목록 조회
-        List<UserListResponse> responses2 = adminService.userList(user.getId(), "중등 기초");
+        List<UserListResponse> responses2 = adminService.userList(admin, "중등 기초");
 
         // then
         assertAll(
@@ -88,19 +97,21 @@ public class AdminServiceTest {
     void userList2() {
         // given
         User user = before();
-        user.setRole("ROLE_MIDDLE_ADMIN");
         user.setClassName("중등 기초");
+        user.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
 
         List<User> list = new ArrayList<>();
         list.add(user);
 
         // stub
-        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
         when(userRepository.findByClassNameAndApproval(any(), any())).thenReturn(list);
 
         // when
         // 중간 관리자에 클래스별 승인 여부가 Y인 유저 목록 조회
-        List<UserListResponse> responses = adminService.userList(user.getId(), null);
+        List<UserListResponse> responses = adminService.userList(admin, null);
 
         // then
         assertThat(responses).isNotNull();
@@ -139,19 +150,21 @@ public class AdminServiceTest {
     @DisplayName("마스터 관리자가 유저 정보 변경")
     void userUpdate() {
         // given
-        User admin = before();
-        admin.setRole("ROLE_MASTER_ADMIN");
-        admin.setClassName("master");
+        User adminUser = before();
+        adminUser.setClassName("master");
+        adminUser.setRole("ROLE_MASTER_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
         User user = before();
 
         // stub
-        when(userRepository.findById(any())).thenReturn(Optional.of(admin));
         when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
 
         // when
         UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "ROLE_MIDDLE_USER", "중등 기초");
 
-        adminService.userUpdate(admin.getId(), request);
+        adminService.userUpdate(admin, request);
 
         // then
         assertAll(
@@ -163,20 +176,22 @@ public class AdminServiceTest {
     @DisplayName("중간 관리자가 유저 정보 변경")
     void userUpdate2() {
         // given
-        User admin = before();
-        admin.setRole("ROLE_MIDDLE_ADMIN");
-        admin.setClassName("중등 기초");
+        User adminUser = before();
+        adminUser.setClassName("중등 기초");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
         User user = before();
         user.setClassName("중등 기초");
 
         // stub
-        when(userRepository.findById(any())).thenReturn(Optional.of(admin));
         when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
 
         // when
         UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초2");
 
-        adminService.userUpdate(admin.getId(), request);
+        adminService.userUpdate(admin, request);
 
         // then
         assertThat(request.getClassName()).isEqualTo(user.getClassName());
@@ -185,7 +200,7 @@ public class AdminServiceTest {
          * 중간 관리자가 맡은 클래스의 유저가 아닌 경우
          */
         user.setClassName("고등 기초");
-        assertThatThrownBy(() -> adminService.userUpdate(admin.getId(), request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
+        assertThatThrownBy(() -> adminService.userUpdate((Authentication) admin, request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
     }
 
     @Test

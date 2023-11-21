@@ -13,10 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -42,37 +48,47 @@ public class AdminControllerTest {
 
     @Test
     @DisplayName("마스터 관리자가 유저 목록 조회")
-    @WithMockUser(username = "example0930", roles = "MASTER_ADMIN")
     void userList() throws Exception {
         // given
+        User user = before();
+        user.setClassName("master");
+        user.setRole("ROLE_MASTER_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         // when
         // 마스터가 전체 승인 여부가 Y인 유저 전체 목록 조회
-        ResultActions resultActions = mvc.perform(get("/api/admin/users?adminId=2&className=all"));
+        ResultActions resultActions = mvc.perform(get("/api/admin/users?className=all"));
         // 마스터 관리자가 전체 승인 여부가 Y인 keyword에 맞는 클래스 유저 목록 조회
-        ResultActions resultActions2 = mvc.perform(get("/api/admin/users?adminId=2&className=중등 기초"));
+        ResultActions resultActions2 = mvc.perform(get("/api/admin/users?className=중등 기초"));
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 목록 조회에 성공했습니다."));
 
         resultActions2.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 목록 조회에 성공했습니다."));
     }
 
     @Test
     @DisplayName("중간 관리자가 유저 목록 조회")
-    @WithMockUser(username = "example09302", roles = "MIDDLE_ADMIN")
     void userList2() throws Exception {
         // given
+        User user = before();
+        user.setClassName("중등 기초");
+        user.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         // when
         // 중간 관리자가 자기가 맡은 클래스의 승인 여부가 Y인 유저 목록만 조회
-        ResultActions resultActions = mvc.perform(get("/api/admin/users?adminId=2&className="));
+        ResultActions resultActions = mvc.perform(get("/api/admin/users?className="));
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 목록 조회에 성공했습니다."));
     }
 
@@ -90,7 +106,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user/approval")
+        ResultActions resultActions = mvc.perform(patch("/api/admin/users/approval")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -99,19 +115,22 @@ public class AdminControllerTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 승인 여부 변경에 성공했습니다."));
     }
 
     @Test
     @DisplayName("마스터 관리자가 유저 정보 변경")
-    @WithMockUser(username = "example0933", roles = "MASTER_ADMIN")
     void userUpdate() throws Exception {
         /**
          * 마스터 관리자 저장
          */
-        User admin = before();
-        admin.setClassName("master");
+        User adminUser = before();
+        adminUser.setClassName("master");
+        adminUser.setRole("ROLE_MASTER_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         /**
          * 유저 저장
@@ -124,7 +143,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user?adminId=" + admin.getId())
+        ResultActions resultActions = mvc.perform(patch("/api/admin/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -133,19 +152,22 @@ public class AdminControllerTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 정보 변경에 성공했습니다."));
     }
 
     @Test
     @DisplayName("중간 관리자가 유저 정보 변경")
-    @WithMockUser(username = "example0933", roles = "MIDDLE_ADMIN")
     void userUpdate2() throws Exception {
         /**
          * 중간 관리자 저장
          */
-        User admin = before();
-        admin.setClassName("중등 기초");
+        User adminUser = before();
+        adminUser.setClassName("중등 기초");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         /**
          * 유저 저장
@@ -159,7 +181,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user?adminId=" + admin.getId())
+        ResultActions resultActions = mvc.perform(patch("/api/admin/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -168,19 +190,22 @@ public class AdminControllerTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 정보 변경에 성공했습니다."));
     }
 
     @Test
     @DisplayName("중간 관리자가 유저 정보 변경 실패")
-    @WithMockUser(username = "example0933", roles = "MIDDLE_ADMIN")
     void userUpdateFail() throws Exception {
         /**
          * 중간 관리자 저장
          */
-        User admin = before();
-        admin.setClassName("중등 기초");
+        User adminUser = before();
+        adminUser.setClassName("중등 기초");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         /**
          * 유저 저장
@@ -196,7 +221,7 @@ public class AdminControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(patch("/api/admin/user?adminId=" + admin.getId())
+        ResultActions resultActions = mvc.perform(patch("/api/admin/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -204,8 +229,8 @@ public class AdminControllerTest {
         );
 
         // then
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code").value("3003"))
+        resultActions.andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("403"))
                 .andExpect(jsonPath("message").value("권한이 없습니다. 관리자에게 문의하세요."));
     }
 
@@ -219,11 +244,11 @@ public class AdminControllerTest {
          */
         User user = before();
         // when
-        ResultActions resultActions = mvc.perform(delete("/api/master-admin/user?userLoginId=" + user.getLoginId()));
+        ResultActions resultActions = mvc.perform(delete("/api/master-admin/users?userLoginId=" + user.getLoginId()));
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 삭제에 성공했습니다."));
     }
 }

@@ -49,7 +49,7 @@ public class UserControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(post("/api/user/join")
+        ResultActions resultActions = mvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -57,8 +57,8 @@ public class UserControllerTest {
         );
 
         // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("code").value("201"))
                 .andExpect(jsonPath("message").value("회원가입에 성공했습니다."));
     }
 
@@ -78,7 +78,7 @@ public class UserControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(post("/api/user/join")
+        ResultActions resultActions = mvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -86,8 +86,8 @@ public class UserControllerTest {
         );
 
         // then
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code").value("3001"))
+        resultActions.andExpect(status().isConflict())
+                .andExpect(jsonPath("code").value("409"))
                 .andExpect(jsonPath("message").value("중복된 아이디가 있습니다."));
     }
 
@@ -104,14 +104,14 @@ public class UserControllerTest {
         String duplicateLoginId = "example0921";
 
         // when
-        ResultActions resultActions = mvc.perform(get("/api/user/duplicate-check?loginId=" + loginId)
+        ResultActions resultActions = mvc.perform(get("/api/users/duplicate-check?loginId=" + loginId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
         );
 
         // 로그인 아이디 중복O
-        ResultActions resultActions2 = mvc.perform(get("/api/user/duplicate-check?loginId=" + duplicateLoginId)
+        ResultActions resultActions2 = mvc.perform(get("/api/users/duplicate-check?loginId=" + duplicateLoginId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
@@ -119,11 +119,11 @@ public class UserControllerTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("사용 가능한 아이디 입니다."));
 
-        resultActions2.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code").value("3001"))
+        resultActions2.andExpect(status().isConflict())
+                .andExpect(jsonPath("code").value("409"))
                 .andExpect(jsonPath("message").value("중복된 아이디가 있습니다."));
     }
 
@@ -140,7 +140,7 @@ public class UserControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(post("/api/user/login")
+        ResultActions resultActions = mvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -148,8 +148,8 @@ public class UserControllerTest {
         );
 
         // then
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code").value("3003"))
+        resultActions.andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("403"))
                 .andExpect(jsonPath("message").value("권한이 없습니다. 관리자에게 문의하세요."));
 
     }
@@ -168,7 +168,7 @@ public class UserControllerTest {
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
-        ResultActions resultActions = mvc.perform(post("/api/user/login")
+        ResultActions resultActions = mvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
@@ -177,7 +177,7 @@ public class UserControllerTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("1000"))
+                .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("로그인에 성공했습니다."));
 
     }

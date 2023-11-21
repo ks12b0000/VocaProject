@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +28,8 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @GetMapping("/admin/users")
-    public ResponseEntity userList(@RequestParam Long adminId, @RequestParam String className) {
-        List<UserListResponse> response = adminService.userList(adminId, className);
+    public ResponseEntity userList(Authentication admin, @RequestParam String className) {
+        List<UserListResponse> response = adminService.userList(admin, className);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 목록 조회에 성공했습니다.", response));
     }
@@ -60,8 +61,8 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/admin/users")
-    public ResponseEntity userUpdate(@RequestParam Long adminId, @RequestBody UserUpdateRequest request) {
-        adminService.userUpdate(adminId, request);
+    public ResponseEntity userUpdate(Authentication admin, @RequestBody UserUpdateRequest request) {
+        adminService.userUpdate(admin, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 정보 변경에 성공했습니다."));
     }
@@ -71,8 +72,8 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/admin/users/password")
-    public ResponseEntity userPasswordUpdate(@RequestParam Long adminId, @RequestParam String userLoginId, @RequestBody UserUpdatePwRequest request) {
-        adminService.userPasswordUpdate(adminId, userLoginId, request);
+    public ResponseEntity userPasswordUpdate(Authentication admin, @RequestParam String userLoginId, @RequestBody UserUpdatePwRequest request) {
+        adminService.userPasswordUpdate(admin, userLoginId, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 비밀번호 변경에 성공했습니다."));
     }

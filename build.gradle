@@ -37,6 +37,9 @@ dependencies {
 
 	// csv
 	implementation 'com.opencsv:opencsv:5.7.1'
+
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

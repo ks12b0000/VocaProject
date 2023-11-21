@@ -1,11 +1,11 @@
 package backend.VocaProject.user;
 
 import backend.VocaProject.domain.User;
+import backend.VocaProject.jwt.dto.GeneratedToken;
 import backend.VocaProject.response.BaseResponse;
 import backend.VocaProject.response.ValidationSequence;
 import backend.VocaProject.user.dto.JoinRequest;
 import backend.VocaProject.user.dto.LoginRequest;
-import backend.VocaProject.user.dto.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,22 +61,9 @@ public class UserController {
     @Tag(name = "Users")
     @PostMapping("/login")
     public ResponseEntity login(@Validated(ValidationSequence.class) @RequestBody LoginRequest loginRequest) {
-        LoginResponse response = userService.login(loginRequest);
+        GeneratedToken response = userService.login(loginRequest);
 
         return ResponseEntity.ok(new BaseResponse(200, "로그인에 성공했습니다.", response));
     }
 
-    @Tag(name = "Users")
-    @GetMapping("/auth")
-    public User info(Authentication auth) {
-        User userInfo = userService.getLoginUserByLoginId(auth.getName());
-
-        return userInfo;
-    }
-
-    @Tag(name = "Users")
-    @GetMapping("/admin")
-    public String adminPage() {
-        return "관리자 페이지 접근 성공";
-    }
 }

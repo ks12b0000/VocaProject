@@ -4,20 +4,21 @@ import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserListResponse;
 import backend.VocaProject.admin.dto.UserUpdatePwRequest;
 import backend.VocaProject.admin.dto.UserUpdateRequest;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
 public interface AdminService {
 
-    List<UserListResponse> userList(Long adminId, String className);
+    List<UserListResponse> userList(Authentication admin, String className);
 
     List<UserListResponse> userNonApprovalList();
 
     void userApprovalUpdate(ApprovalUpdateRequest request);
 
-    void userUpdate(Long adminId, UserUpdateRequest request);
+    void userUpdate(Authentication admin, UserUpdateRequest request);
 
-    void userPasswordUpdate(Long adminId, String userLoginId, UserUpdatePwRequest request);
+    void userPasswordUpdate(Authentication admin, String userLoginId, UserUpdatePwRequest request);
 
     void userDelete(String userLoginId);
 

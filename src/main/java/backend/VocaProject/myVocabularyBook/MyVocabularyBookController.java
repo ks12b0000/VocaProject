@@ -1,5 +1,6 @@
 package backend.VocaProject.myVocabularyBook;
 
+import backend.VocaProject.myVocabularyBook.dto.MyVocabularyBookListResponse;
 import backend.VocaProject.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,5 +42,16 @@ public class MyVocabularyBookController {
         myVocabularyBookService.myVocabularyBookDelete(auth, wordId);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "나만의 단어장에 단어를 삭제했습니다."));
+    }
+
+    @Operation(summary = "나만의 단어장에 단어 조회 API", responses = {
+            @ApiResponse(responseCode = "200", description = "나만의 단어장에 단어를 조회했습니다.")
+    })
+    @Tag(name = "MyVocabularyBook")
+    @GetMapping("/my-vocabulary-book")
+    public ResponseEntity myVocabularyBookList(Authentication auth) {
+        List<MyVocabularyBookListResponse> responses = myVocabularyBookService.myVocabularyBookList(auth);
+
+        return ResponseEntity.ok().body(new BaseResponse<>(200, "나만의 단어장에 단어를 조회했습니다.", responses));
     }
 }

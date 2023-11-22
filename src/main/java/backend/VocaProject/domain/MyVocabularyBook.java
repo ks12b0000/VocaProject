@@ -1,5 +1,7 @@
 package backend.VocaProject.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -10,6 +12,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 public class MyVocabularyBook {
 
     @Id
@@ -23,7 +27,7 @@ public class MyVocabularyBook {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoryId")
+    @JoinColumn(name = "wordId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private VocabularyBookCategory category;
+    private VocabularyBook vocabularyBook;
 }

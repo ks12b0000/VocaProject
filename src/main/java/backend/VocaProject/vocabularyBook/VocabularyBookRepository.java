@@ -19,7 +19,7 @@ public interface VocabularyBookRepository extends JpaRepository<VocabularyBook, 
     void deleteByVocabularyBookCategory(VocabularyBookCategory vocabularyBookCategory);
 
     @Query("select new backend.VocaProject.vocabularyBook.dto.VocabularyBookResponse(" +
-            "a.id, a.word, a.meaning) " +
+            "a.id, a.word, a.meaning, (select b.user.id from MyVocabularyBook b where b.vocabularyBook.id = a.id) as myVocabularyBook) " +
             "from VocabularyBook a " +
             "where a.vocabularyBookCategory = :category and a.day >= :firstDay and a.day <= :lastDay")
     List<VocabularyBookResponse> findByVocabularyList(@Param("category") VocabularyBookCategory category, @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);

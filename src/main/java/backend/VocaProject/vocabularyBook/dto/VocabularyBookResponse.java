@@ -16,5 +16,6 @@ public class VocabularyBookResponse {
 
     private String meaning;
 
+    private Long myVocabularyBook;
 
 }

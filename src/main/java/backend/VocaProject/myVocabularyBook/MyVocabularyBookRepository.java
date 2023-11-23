@@ -6,6 +6,7 @@ import backend.VocaProject.domain.VocabularyBook;
 import backend.VocaProject.myVocabularyBook.dto.MyVocabularyBookListResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,5 +23,5 @@ public interface MyVocabularyBookRepository extends JpaRepository<MyVocabularyBo
             "a.vocabularyBook.id, a.vocabularyBook.word, a.vocabularyBook.meaning, a.vocabularyBook.vocabularyBookCategory.name) " +
             "from MyVocabularyBook a " +
             "where a.user = :user")
-    List<MyVocabularyBookListResponse> findByMyVocabularyBookList(User user);
+    List<MyVocabularyBookListResponse> findByMyVocabularyBookList(@Param("user") User user);
 }

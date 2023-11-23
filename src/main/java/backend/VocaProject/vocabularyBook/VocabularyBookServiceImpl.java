@@ -1,10 +1,13 @@
 package backend.VocaProject.vocabularyBook;
 
+import backend.VocaProject.VocabularyLearning.VocabularyLearningRepository;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
+import backend.VocaProject.domain.VocabularyLearning;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookListResponse;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookResponse;
+import backend.VocaProject.vocabularyBook.dto.VocabularyLearningRequest;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,8 @@ public class VocabularyBookServiceImpl implements VocabularyBookService{
 
     private final VocabularyBookCategoryRepository categoryRepository;
 
+    private final VocabularyLearningRepository vocabularyLearningRepository;
+
     /**
      * 단어장 조회
      * categoryId, firstDay, lastDay로 단어장 종류, 기간으로 단어장을 조회해서
@@ -43,5 +48,26 @@ public class VocabularyBookServiceImpl implements VocabularyBookService{
         VocabularyBookListResponse response = new VocabularyBookListResponse(list, firstDay, lastDay, list.size(), category.getName());
 
         return response;
+    }
+
+    /**
+     * 단어장 학습 종료시 학습 저장
+     * @param auth
+     * @param request
+     */
+    @Override
+    @Transactional
+    public void vocabularyBookEndByLearningSave(Authentication auth, VocabularyLearningRequest request) {
+        User user = (User) auth.getPrincipal();
+        VocabularyBookCategory category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
+
+        VocabularyLearning vocabularyLearning = vocabularyLearningRepository.findByUserAndVocabularyBookCategory(user, category);
+
+        if (vocabularyLearning != null) {
+            vocabularyLearning.updateVocabularyLearning(vocabularyLearning.getLearningTime() + request.getLearningTime(), request.getFirstDay(), request.getLastDay());
+        } else {
+            vocabularyLearning = new VocabularyLearning(category, user, request.getLearningTime(), request.getFirstDay(), request.getLastDay());
+            vocabularyLearningRepository.save(vocabularyLearning);
+        }
     }
 }

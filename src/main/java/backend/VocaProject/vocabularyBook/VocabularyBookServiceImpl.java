@@ -52,6 +52,9 @@ public class VocabularyBookServiceImpl implements VocabularyBookService{
 
     /**
      * 단어장 학습 종료시 학습 저장
+     * user, categoryId, learningTime, firstDay, lastDay로 단어장 학습 내용을 저장한다.
+     * 만약 이미 학습이 저장된 카테고리라면, 학습시간을 플러스 하고, firstDay, lastDay를 업데이트 한다.
+     * 처음 학습을 저장한다면 학습 내용을 저장한다.
      * @param auth
      * @param request
      */

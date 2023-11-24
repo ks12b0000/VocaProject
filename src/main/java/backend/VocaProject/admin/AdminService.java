@@ -1,9 +1,6 @@
 package backend.VocaProject.admin;
 
-import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
-import backend.VocaProject.admin.dto.UserListResponse;
-import backend.VocaProject.admin.dto.UserUpdatePwRequest;
-import backend.VocaProject.admin.dto.UserUpdateRequest;
+import backend.VocaProject.admin.dto.*;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -23,4 +20,6 @@ public interface AdminService {
     void userDelete(Long userId);
 
     void vocabularyBookDelete(Long categoryId);
+
+    void vocabularyTestSetting(Authentication admin, VocabularyTestSettingRequest request);
 }

@@ -1,15 +1,14 @@
 package backend.VocaProject.admin;
 
-import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
-import backend.VocaProject.admin.dto.UserListResponse;
-import backend.VocaProject.admin.dto.UserUpdatePwRequest;
-import backend.VocaProject.admin.dto.UserUpdateRequest;
+import backend.VocaProject.admin.dto.*;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
+import backend.VocaProject.domain.VocabularyTestSetting;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
+import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +33,8 @@ public class AdminServiceImpl implements AdminService {
     private final VocabularyBookRepository vocabularyBookRepository;
 
     private final VocabularyBookCategoryRepository vocabularyBookCategoryRepository;
+
+    private final VocabularyTestSettingRepository vocabularyTestSettingRepository;
 
     /**
      * 유저 목록 조회
@@ -152,5 +153,31 @@ public class AdminServiceImpl implements AdminService {
         VocabularyBookCategory vocabularyBookCategory = vocabularyBookCategoryRepository.findById(categoryId).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
 
         vocabularyBookRepository.deleteByVocabularyBookCategory(vocabularyBookCategory);
+    }
+
+    /**
+     * 유저별 단어 테스트 목표 정답률 설정
+     * @param admin
+     * @param request
+     */
+    @Override
+    @Transactional
+    public void vocabularyTestSetting(Authentication admin, VocabularyTestSettingRequest request) {
+        User adminUser = (User) admin.getPrincipal();
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+        VocabularyBookCategory category = vocabularyBookCategoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
+        VocabularyTestSetting vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore());
+
+        if (vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(user, category)) {
+            throw new BaseException(DUPLICATE_VOCABULARY_TEST);
+        }
+
+        if (adminUser.getClassName().equals("master")) {
+            vocabularyTestSettingRepository.save(vocabularyTestSetting);
+        } else {
+            // 중간 관리자는 자기가 맡은 클래스의 유저만 정답률 설정 가능
+            if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
+            vocabularyTestSettingRepository.save(vocabularyTestSetting);
+        }
     }
 }

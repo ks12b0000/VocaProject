@@ -72,8 +72,8 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/admin/users/password")
-    public ResponseEntity userPasswordUpdate(Authentication admin, @RequestParam String userLoginId, @RequestBody UserUpdatePwRequest request) {
-        adminService.userPasswordUpdate(admin, userLoginId, request);
+    public ResponseEntity userPasswordUpdate(Authentication admin, @RequestBody UserUpdatePwRequest request) {
+        adminService.userPasswordUpdate(admin, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 비밀번호 변경에 성공했습니다."));
     }
@@ -82,9 +82,9 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "유저 삭제에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @DeleteMapping("/master-admin/users")
-    public ResponseEntity userDelete(@RequestParam String userLoginId) {
-        adminService.userDelete(userLoginId);
+    @DeleteMapping("/master-admin/users/{userId}")
+    public ResponseEntity userDelete(@PathVariable Long userId) {
+        adminService.userDelete(userId);
 
         return ResponseEntity.ok(new BaseResponse(200, "유저 삭제에 성공했습니다."));
     }
@@ -93,8 +93,8 @@ public class AdminController {
             @ApiResponse(responseCode = "200", description = "단어장 삭제에 성공했습니다.")
     })
     @Tag(name = "Admin")
-    @DeleteMapping("/master-admin/vocabulary-book")
-    public ResponseEntity vocabularyBookDelete(@RequestParam Long categoryId) {
+    @DeleteMapping("/master-admin/vocabulary-book/{categoryId}")
+    public ResponseEntity vocabularyBookDelete(@PathVariable Long categoryId) {
         adminService.vocabularyBookDelete(categoryId);
 
         return ResponseEntity.ok().body(new BaseResponse(200, "단어장 삭제에 성공했습니다."));

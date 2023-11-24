@@ -80,7 +80,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public void userApprovalUpdate(ApprovalUpdateRequest request) {
-        User user = userRepository.findByLoginId(request.getUserLoginId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         user.updateApprovalAndRole(request.getApproval(), request.getRole());
     }
@@ -94,7 +94,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public void userUpdate(Authentication admin, UserUpdateRequest request) {
         User adminUser = (User) admin.getPrincipal();
-        User user = userRepository.findByLoginId(request.getUserLoginId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         // 마스터 관리자일 경우 role, className 변경 가능
         if (adminUser.getClassName().equals("master")) {
@@ -115,9 +115,9 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     @Transactional
-    public void userPasswordUpdate(Authentication admin, String userLoginId, UserUpdatePwRequest request) {
+    public void userPasswordUpdate(Authentication admin, UserUpdatePwRequest request) {
         User adminUser = (User) admin.getPrincipal();
-        User user = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
         String enPassword = bCryptPasswordEncoder.encode(request.getPassword());
 
         if (adminUser.getClassName().equals("master")) {
@@ -132,12 +132,12 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 유저 삭제
-     * @param userLoginId
+     * @param userId
      */
     @Override
     @Transactional
-    public void userDelete(String userLoginId) {
-        User user = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
+    public void userDelete(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
         userRepository.delete(user);
     }

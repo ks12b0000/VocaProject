@@ -102,7 +102,7 @@ public class AdminControllerTest {
         User user = before();
 
         // given
-        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y", "ROLE_USER");
+        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getId(), "Y", "ROLE_USER");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -139,7 +139,7 @@ public class AdminControllerTest {
         userRepository.save(user);
 
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "ROLE_USER", "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), "ROLE_USER", "중등 기초");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -177,7 +177,7 @@ public class AdminControllerTest {
         user.setClassName("중등 기초");
 
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초2");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), null, "중등 기초2");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -217,7 +217,7 @@ public class AdminControllerTest {
          * 중간 관리자가 맡은 클래스의 유저가 아니면 변경 불가
          */
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), null, "중등 기초");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -244,7 +244,7 @@ public class AdminControllerTest {
          */
         User user = before();
         // when
-        ResultActions resultActions = mvc.perform(delete("/api/master-admin/users?userLoginId=" + user.getLoginId()));
+        ResultActions resultActions = mvc.perform(delete("/api/master-admin/users/" + user.getId()));
 
         // then
         resultActions.andExpect(status().isOk())

@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserListResponse {
 
+    private Long userId;
+
     private String username;
 
     private String loginId;
@@ -21,6 +23,7 @@ public class UserListResponse {
 
     @Builder
     public UserListResponse(User user) {
+        this.userId = user.getId();
         this.username = user.getUsername();
         this.loginId = user.getLoginId();
         this.role = user.getRole();

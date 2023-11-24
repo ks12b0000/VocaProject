@@ -18,9 +18,9 @@ public interface AdminService {
 
     void userUpdate(Authentication admin, UserUpdateRequest request);
 
-    void userPasswordUpdate(Authentication admin, String userLoginId, UserUpdatePwRequest request);
+    void userPasswordUpdate(Authentication admin, UserUpdatePwRequest request);
 
-    void userDelete(String userLoginId);
+    void userDelete(Long userId);
 
     void vocabularyBookDelete(Long categoryId);
 }

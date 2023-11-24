@@ -124,13 +124,13 @@ public class AdminServiceTest {
         User user = before();
 
         // stub
-        when(userRepository.findByLoginId(user.getLoginId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         /**
          * 유저 승인 여부 Y로 변경
          */
         // when
-        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getLoginId(), "Y", "ROLE_USER");
+        ApprovalUpdateRequest request = new ApprovalUpdateRequest(user.getId(), "Y", "ROLE_USER");
         adminService.userApprovalUpdate(request);
         // then
         assertThat(user.getApproval()).isEqualTo("Y");
@@ -139,7 +139,7 @@ public class AdminServiceTest {
          * 유저 승인 여부 N으로 변경
          */
         // when
-        request = new ApprovalUpdateRequest(user.getLoginId(), "N", "ROLE_NULL");
+        request = new ApprovalUpdateRequest(user.getId(), "N", "ROLE_NULL");
         adminService.userApprovalUpdate(request);
         // then
         assertThat(user.getApproval()).isEqualTo("N");
@@ -159,10 +159,10 @@ public class AdminServiceTest {
         User user = before();
 
         // stub
-        when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         // when
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), "ROLE_MIDDLE_USER", "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), "ROLE_MIDDLE_USER", "중등 기초");
 
         adminService.userUpdate(admin, request);
 
@@ -186,10 +186,10 @@ public class AdminServiceTest {
         user.setClassName("중등 기초");
 
         // stub
-        when(userRepository.findByLoginId(any())).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         // when
-        UserUpdateRequest request = new UserUpdateRequest(user.getLoginId(), null, "중등 기초2");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), null, "중등 기초2");
 
         adminService.userUpdate(admin, request);
 
@@ -200,7 +200,7 @@ public class AdminServiceTest {
          * 중간 관리자가 맡은 클래스의 유저가 아닌 경우
          */
         user.setClassName("고등 기초");
-        assertThatThrownBy(() -> adminService.userUpdate((Authentication) admin, request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
+        assertThatThrownBy(() -> adminService.userUpdate(admin, request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
     }
 
     @Test
@@ -210,13 +210,13 @@ public class AdminServiceTest {
         User user = before();
 
         // stub
-        when(userRepository.findByLoginId(user.getLoginId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         // when
-        adminService.userDelete(user.getLoginId());
+        adminService.userDelete(user.getId());
 
-        when(userRepository.findByLoginId(user.getLoginId())).thenReturn(null);
+        when(userRepository.findById(user.getId())).thenReturn(null);
         // then
-        assertThat(userRepository.findByLoginId(user.getLoginId())).isNull();
+        assertThat(userRepository.findById(user.getId())).isNull();
     }
 }

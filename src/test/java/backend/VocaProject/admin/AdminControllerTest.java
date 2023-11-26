@@ -2,7 +2,9 @@ package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
 import backend.VocaProject.admin.dto.UserUpdateRequest;
+import backend.VocaProject.admin.dto.VocabularyTestSettingRequest;
 import backend.VocaProject.domain.User;
+import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.user.dto.JoinRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -177,7 +179,7 @@ public class AdminControllerTest {
         user.setClassName("중등 기초");
 
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getId(), null, "중등 기초2");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), "ROLE_USER", "중등 기초2");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -217,7 +219,7 @@ public class AdminControllerTest {
          * 중간 관리자가 맡은 클래스의 유저가 아니면 변경 불가
          */
         // given
-        UserUpdateRequest request = new UserUpdateRequest(user.getId(), null, "중등 기초");
+        UserUpdateRequest request = new UserUpdateRequest(user.getId(), "ROLE_USER", "중등 기초");
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -250,5 +252,99 @@ public class AdminControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("200"))
                 .andExpect(jsonPath("message").value("유저 삭제에 성공했습니다."));
+    }
+
+    @Test
+    @DisplayName("마스터 관리자가 유저별 단어 테스트 목표 정답률 설정 성공")
+    void vocabularyTestSetting() throws Exception {
+        User adminUser = before();
+        adminUser.setClassName("master");
+        adminUser.setRole("ROLE_MASTER_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급");
+        User user = new User("홍길동", "example00998f", "example0988231");
+        userRepository.save(user);
+
+        // given
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        String content = new ObjectMapper().writeValueAsString(request);
+
+        // when
+        ResultActions resultActions = mvc.perform(post("/api/admin/vocabulary-book/test/setting")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("200"))
+                .andExpect(jsonPath("message").value("유저별 단어 테스트 설정에 성공했습니다."));
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 유저별 단어 테스트 목표 정답률 설정 성공")
+    void vocabularyTestSetting2() throws Exception {
+        User adminUser = before();
+        adminUser.setClassName("중등 초급");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급");
+        User user = new User("홍길동", "example00998f", "example0988231");
+        user.setClassName("중등 초급");
+        userRepository.save(user);
+
+        // given
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        String content = new ObjectMapper().writeValueAsString(request);
+
+        // when
+        ResultActions resultActions = mvc.perform(post("/api/admin/vocabulary-book/test/setting")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("200"))
+                .andExpect(jsonPath("message").value("유저별 단어 테스트 설정에 성공했습니다."));
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 유저별 단어 테스트 목표 정답률 설정 실패")
+    void vocabularyTestSettingFail() throws Exception {
+        User adminUser = before();
+        adminUser.setClassName("중등 초급");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급");
+        User user = new User("홍길동", "example00998f", "example0988231");
+        userRepository.save(user);
+
+        // given
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        String content = new ObjectMapper().writeValueAsString(request);
+
+        // when
+        ResultActions resultActions = mvc.perform(post("/api/admin/vocabulary-book/test/setting")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        );
+
+        // then
+        resultActions.andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("403"))
+                .andExpect(jsonPath("message").value("권한이 없습니다. 관리자에게 문의하세요."));
     }
 }

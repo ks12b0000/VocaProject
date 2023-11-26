@@ -15,7 +15,8 @@ public enum BaseExceptionStatus {
     NON_EXISTENT_VOCABULARY_BOOK(HttpStatus.BAD_REQUEST, "존재하지 않는 단어장입니다."),
     NON_EXISTENT_WORD(HttpStatus.BAD_REQUEST, "존재하지 않는 단어입니다."),
     DUPLICATE_MY_VOCABULARY_BOOK(HttpStatus.CONFLICT, "이미 나만의 단어장에 추가한 단어입니다."),
-    NON_EXISTENT_MY_WORD(HttpStatus.BAD_REQUEST, "존재하지 않는 나만의 단어입니다.");
+    NON_EXISTENT_MY_WORD(HttpStatus.BAD_REQUEST, "존재하지 않는 나만의 단어입니다."),
+    DUPLICATE_VOCABULARY_TEST(HttpStatus.CONFLICT, "이미 설정한 단어 테스트입니다.");
 
 
     private final HttpStatus code;

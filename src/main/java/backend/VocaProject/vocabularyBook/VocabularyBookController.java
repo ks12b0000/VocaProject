@@ -1,6 +1,7 @@
 package backend.VocaProject.vocabularyBook;
 
 import backend.VocaProject.response.BaseResponse;
+import backend.VocaProject.response.ValidationSequence;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookListResponse;
 import backend.VocaProject.vocabularyBook.dto.VocabularyLearningRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,7 +39,7 @@ public class VocabularyBookController {
     })
     @Tag(name = "VocabularyBook")
     @PostMapping("/vocabulary-book/learning")
-    public ResponseEntity vocabularyBookEndByLearningSave(Authentication auth, @RequestBody VocabularyLearningRequest request) {
+    public ResponseEntity vocabularyBookEndByLearningSave(Authentication auth, @Validated(ValidationSequence.class) @RequestBody VocabularyLearningRequest request) {
         vocabularyBookService.vocabularyBookEndByLearningSave(auth, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "단어장 학습 저장에 성공했습니다."));

@@ -1,16 +1,15 @@
 package backend.VocaProject.admin;
 
-import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
-import backend.VocaProject.admin.dto.UserListResponse;
-import backend.VocaProject.admin.dto.UserUpdatePwRequest;
-import backend.VocaProject.admin.dto.UserUpdateRequest;
+import backend.VocaProject.admin.dto.*;
 import backend.VocaProject.response.BaseResponse;
+import backend.VocaProject.response.ValidationSequence;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/admin/users/approval")
-    public ResponseEntity userApprovalUpdate(@RequestBody ApprovalUpdateRequest request) {
+    public ResponseEntity userApprovalUpdate(@Validated(ValidationSequence.class) @RequestBody ApprovalUpdateRequest request) {
         adminService.userApprovalUpdate(request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 승인 여부 변경에 성공했습니다."));
@@ -61,7 +60,7 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/admin/users")
-    public ResponseEntity userUpdate(Authentication admin, @RequestBody UserUpdateRequest request) {
+    public ResponseEntity userUpdate(Authentication admin, @Validated(ValidationSequence.class) @RequestBody UserUpdateRequest request) {
         adminService.userUpdate(admin, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 정보 변경에 성공했습니다."));
@@ -72,7 +71,7 @@ public class AdminController {
     })
     @Tag(name = "Admin")
     @PatchMapping("/admin/users/password")
-    public ResponseEntity userPasswordUpdate(Authentication admin, @RequestBody UserUpdatePwRequest request) {
+    public ResponseEntity userPasswordUpdate(Authentication admin, @Validated(ValidationSequence.class) @RequestBody UserUpdatePwRequest request) {
         adminService.userPasswordUpdate(admin, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "유저 비밀번호 변경에 성공했습니다."));
@@ -98,6 +97,17 @@ public class AdminController {
         adminService.vocabularyBookDelete(categoryId);
 
         return ResponseEntity.ok().body(new BaseResponse(200, "단어장 삭제에 성공했습니다."));
+    }
+
+    @Operation(summary = "유저별 단어 테스트 설정 API", responses = {
+            @ApiResponse(responseCode = "200", description = "유저별 단어 테스트 설정에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @PostMapping("/admin/vocabulary-book/test/setting")
+    public ResponseEntity vocabularyTestSetting(Authentication admin, @Validated(ValidationSequence.class) @RequestBody VocabularyTestSettingRequest request) {
+        adminService.vocabularyTestSetting(admin, request);
+
+        return ResponseEntity.ok().body(new BaseResponse(200, "유저별 단어 테스트 설정에 성공했습니다."));
     }
 
 }

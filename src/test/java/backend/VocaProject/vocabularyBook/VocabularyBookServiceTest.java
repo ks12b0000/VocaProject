@@ -1,6 +1,6 @@
 package backend.VocaProject.vocabularyBook;
 
-import backend.VocaProject.VocabularyLearning.VocabularyLearningRepository;
+import backend.VocaProject.vocabularyLearning.VocabularyLearningRepository;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookListResponse;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 

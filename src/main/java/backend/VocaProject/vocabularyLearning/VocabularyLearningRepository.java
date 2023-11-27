@@ -1,4 +1,4 @@
-package backend.VocaProject.VocabularyLearning;
+package backend.VocaProject.vocabularyLearning;
 
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;

@@ -1,6 +1,6 @@
 package backend.VocaProject.vocabularyBook;
 
-import backend.VocaProject.VocabularyLearning.VocabularyLearningRepository;
+import backend.VocaProject.vocabularyLearning.VocabularyLearningRepository;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.domain.VocabularyLearning;

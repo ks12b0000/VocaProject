@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Getter
 @Builder
 @AllArgsConstructor
-public class VocabularyLearning {
+public class VocabularyLearning extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,9 +48,7 @@ public class VocabularyLearning {
         this.lastDay = lastDay;
     }
 
-    public void updateVocabularyLearning(Long learningTime, int firstDay, int lastDay) {
+    public void updateVocabularyLearning(Long learningTime) {
         this.learningTime = learningTime;
-        this.firstDay = firstDay;
-        this.lastDay = lastDay;
     }
 }

@@ -64,7 +64,7 @@ public class VocabularyBookServiceImpl implements VocabularyBookService{
         User user = (User) auth.getPrincipal();
         VocabularyBookCategory category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
 
-        VocabularyLearning vocabularyLearning = vocabularyLearningRepository.findByUserAndVocabularyBookCategory(user, category);
+        VocabularyLearning vocabularyLearning = vocabularyLearningRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, request.getFirstDay(), request.getLastDay());
 
         if (vocabularyLearning != null) {
             vocabularyLearning.updateVocabularyLearning(vocabularyLearning.getLearningTime() + request.getLearningTime(), request.getFirstDay(), request.getLastDay());

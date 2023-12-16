@@ -4,6 +4,7 @@ import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBook;
 import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookResponse;
+import backend.VocaProject.vocabularyTest.dto.VocabularyTestResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +24,10 @@ public interface VocabularyBookRepository extends JpaRepository<VocabularyBook, 
             "from VocabularyBook a " +
             "where a.vocabularyBookCategory = :category and a.day >= :firstDay and a.day <= :lastDay")
     List<VocabularyBookResponse> findByVocabularyList(@Param("category") VocabularyBookCategory category, @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
+
+    @Query("select new backend.VocaProject.vocabularyTest.dto.VocabularyTestResponse(" +
+            "a.id, a.word, a.meaning) " +
+            "from VocabularyBook a " +
+            "where a.vocabularyBookCategory = :category and a.day >= :firstDay and a.day <= :lastDay")
+    List<VocabularyTestResponse> findByVocabularyTestList(@Param("category") VocabularyBookCategory category, @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
 }

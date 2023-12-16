@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VocabularyLearningRepository extends JpaRepository<VocabularyLearning, Long> {
 
-    VocabularyLearning findByUserAndVocabularyBookCategory(@Param("user") User user, @Param("category")VocabularyBookCategory category);
+    VocabularyLearning findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category")VocabularyBookCategory category,
+                                                                                @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
 }

@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Getter
 @Builder
 @AllArgsConstructor
-public class VocabularyLearning {
+public class VocabularyLearning extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

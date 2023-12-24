@@ -92,7 +92,7 @@ class VocabularyBookServiceTest {
 
         // stub
         when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-        when(vocabularyLearningRepository.findByUserAndVocabularyBookCategory(any(), any())).thenReturn(null);
+        when(vocabularyLearningRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, 1, 2)).thenReturn(null);
 
         // when
         vocabularyBookService.vocabularyBookEndByLearningSave(authUser, request);

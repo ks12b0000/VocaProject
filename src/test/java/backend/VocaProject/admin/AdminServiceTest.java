@@ -246,38 +246,11 @@ public class AdminServiceTest {
         // stub
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-        when(vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(any(), any())).thenReturn(false);
 
         // when
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90, 1, 2);
         adminService.vocabularyTestSetting(admin, request);
         // then
-
-    }
-
-    @Test
-    @DisplayName("마스터 관리자가 유저별 단어 테스트 목표 정답률 설정 실패")
-    void vocabularyTestSettingFail() {
-        // given
-        User adminUser = before();
-        adminUser.setClassName("master");
-        adminUser.setRole("ROLE_MASTER_ADMIN");
-        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
-                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
-        SecurityContextHolder.getContext().setAuthentication(admin);
-        User user = before();
-        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급");
-
-        // stub
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-        when(vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(any(), any())).thenReturn(true);
-
-        // when
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
-
-        // then
-        assertThatThrownBy(() -> adminService.vocabularyTestSetting(admin, request)).hasMessage("이미 설정한 단어 테스트입니다.");
 
     }
 
@@ -298,10 +271,9 @@ public class AdminServiceTest {
         // stub
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-        when(vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(any(), any())).thenReturn(false);
 
         // when
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90, 1, 2);
         adminService.vocabularyTestSetting(admin, request);
         // then
 
@@ -323,38 +295,12 @@ public class AdminServiceTest {
         // stub
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-        when(vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(any(), any())).thenReturn(false);
 
         // when
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90, 1, 2);
 
         // then
         assertThatThrownBy(() -> adminService.vocabularyTestSetting(admin, request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
     }
 
-    @Test
-    @DisplayName("중간 관리자가 유저별 단어 테스트 목표 정답률 설정 실패")
-    void vocabularyTestSettingFail3() {
-        // given
-        User adminUser = before();
-        adminUser.setClassName("중등 초급");
-        adminUser.setRole("ROLE_MIDDLE_ADMIN");
-        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
-                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
-        SecurityContextHolder.getContext().setAuthentication(admin);
-        User user = before();
-        user.setClassName("중등 초급");
-        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급");
-
-        // stub
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-        when(vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(any(), any())).thenReturn(true);
-
-        // when
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
-
-        // then
-        assertThatThrownBy(() -> adminService.vocabularyTestSetting(admin, request)).hasMessage("이미 설정한 단어 테스트입니다.");
-    }
 }

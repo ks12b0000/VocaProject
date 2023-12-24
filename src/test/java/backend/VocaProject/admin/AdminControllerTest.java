@@ -268,7 +268,7 @@ public class AdminControllerTest {
         userRepository.save(user);
 
         // given
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90, 1, 2);
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -300,7 +300,7 @@ public class AdminControllerTest {
         userRepository.save(user);
 
         // given
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90, 1, 2);
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when
@@ -331,7 +331,7 @@ public class AdminControllerTest {
         userRepository.save(user);
 
         // given
-        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90);
+        VocabularyTestSettingRequest request = new VocabularyTestSettingRequest(user.getId(), category.getId(), 90, 1, 2);
         String content = new ObjectMapper().writeValueAsString(request);
 
         // when

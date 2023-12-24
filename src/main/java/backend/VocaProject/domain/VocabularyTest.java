@@ -1,5 +1,6 @@
 package backend.VocaProject.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -10,25 +11,32 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Getter
-public class VocabularyTestSetting {
+@AllArgsConstructor
+public class VocabularyTest extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "settingId")
+    @Column(name = "testId")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoryId")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private VocabularyBookCategory vocabularyBookCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoryId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private VocabularyBookCategory vocabularyBookCategory;
+
     @Column(nullable = false)
-    private int targetScore;
+    private int testCount;
+
+    @Column(length = 50, nullable = false)
+    private String result;
+
+    @Column(length = 50, nullable = false)
+    private String record;
 
     @Column(nullable = false)
     private int firstDay;
@@ -36,11 +44,4 @@ public class VocabularyTestSetting {
     @Column(nullable = false)
     private int lastDay;
 
-    public VocabularyTestSetting(VocabularyBookCategory vocabularyBookCategory, User user, int targetScore, int firstDay, int lastDay) {
-        this.vocabularyBookCategory = vocabularyBookCategory;
-        this.user = user;
-        this.targetScore = targetScore;
-        this.firstDay = firstDay;
-        this.lastDay = lastDay;
-    }
 }

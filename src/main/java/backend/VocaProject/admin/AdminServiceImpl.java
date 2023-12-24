@@ -166,7 +166,7 @@ public class AdminServiceImpl implements AdminService {
         User adminUser = (User) admin.getPrincipal();
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
         VocabularyBookCategory category = vocabularyBookCategoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
-        VocabularyTestSetting vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore());
+        VocabularyTestSetting vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
 
         if (vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(user, category)) {
             throw new BaseException(DUPLICATE_VOCABULARY_TEST);

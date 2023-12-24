@@ -24,4 +24,12 @@ public class VocabularyTestSettingRequest {
     @Schema(description = "목표 정답률", example = "80", required = true)
     @NotNull(message = "목표 정답률 입력하세요.", groups = ValidationGroup.NotNullGroup.class)
     private int targetScore;
+
+    @Schema(description = "단어 테스트 설정 기간", example = "1", required = true)
+    @NotNull(message = "단어 테스트 설정 기간을 입력하세요.", groups = ValidationGroup.NotNullGroup.class)
+    private int firstDay;
+
+    @Schema(description = "단어 테스트 설정 기간", example = "1", required = true)
+    @NotNull(message = "단어 테스트 설정 기간을 입력하세요.", groups = ValidationGroup.NotNullGroup.class)
+    private int lastDay;
 }

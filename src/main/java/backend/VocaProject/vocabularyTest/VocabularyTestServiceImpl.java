@@ -50,7 +50,7 @@ public class VocabularyTestServiceImpl implements VocabularyTestService {
         VocabularyBookCategory category = categoryRepository.findById(categoryId).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
         List<Tuple> tuples = vocabularyBookRepository.findByVocabularyTestList(category.getId(), firstDay, lastDay);
         User user = (User) auth.getPrincipal();
-        Integer testTargetScore = settingRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, firstDay, lastDay);
+        Integer testTargetScore = settingRepository.findByUserVocabularyTestTargetScore(user, category, firstDay, lastDay);
         Integer testCount = vocabularyTestRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, firstDay, lastDay);
 
         VocabularyTestListResponse response = new VocabularyTestListResponse(mapTuplesToResponses(tuples), firstDay, lastDay, tuples.size(), category.getName(), testTargetScore, testCount);

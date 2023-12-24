@@ -166,18 +166,25 @@ public class AdminServiceImpl implements AdminService {
         User adminUser = (User) admin.getPrincipal();
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
         VocabularyBookCategory category = vocabularyBookCategoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
-        VocabularyTestSetting vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
+        VocabularyTestSetting vocabularyTestSetting = vocabularyTestSettingRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, request.getFirstDay(), request.getLastDay());
 
-        if (vocabularyTestSettingRepository.existsByUserAndVocabularyBookCategory(user, category)) {
-            throw new BaseException(DUPLICATE_VOCABULARY_TEST);
-        }
-
-        if (adminUser.getClassName().equals("master")) {
-            vocabularyTestSettingRepository.save(vocabularyTestSetting);
+        if (vocabularyTestSetting == null) {
+            vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
+            if (adminUser.getClassName().equals("master")) {
+                vocabularyTestSettingRepository.save(vocabularyTestSetting);
+            } else {
+                // 중간 관리자는 자기가 맡은 클래스의 유저만 정답률 설정 가능
+                if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
+                vocabularyTestSettingRepository.save(vocabularyTestSetting);
+            }
         } else {
-            // 중간 관리자는 자기가 맡은 클래스의 유저만 정답률 설정 가능
-            if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
-            vocabularyTestSettingRepository.save(vocabularyTestSetting);
+            if (adminUser.getClassName().equals("master")) {
+                vocabularyTestSetting.updateTargetScore(request.getTargetScore());
+            } else {
+                // 중간 관리자는 자기가 맡은 클래스의 유저만 정답률 설정 가능
+                if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
+                vocabularyTestSetting.updateTargetScore(request.getTargetScore());
+            }
         }
     }
 }

@@ -43,4 +43,8 @@ public class VocabularyTestSetting {
         this.firstDay = firstDay;
         this.lastDay = lastDay;
     }
+
+    public void updateTargetScore(int targetScore) {
+        this.targetScore = targetScore;
+    }
 }

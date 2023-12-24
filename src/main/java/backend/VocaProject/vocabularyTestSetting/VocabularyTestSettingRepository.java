@@ -10,11 +10,15 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VocabularyTestSettingRepository extends JpaRepository<VocabularyTestSetting, Long> {
-    boolean existsByUserAndVocabularyBookCategory(@Param("user") User user, @Param("category") VocabularyBookCategory category);
+    boolean existsByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category") VocabularyBookCategory category,
+                                                                       @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
+
+    VocabularyTestSetting findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category") VocabularyBookCategory category,
+                                                                                   @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
 
     @Query("select targetScore " +
             "from VocabularyTestSetting " +
             "where user = :user And vocabularyBookCategory = :category And firstDay = :firstDay And lastDay = :lastDay")
-    Integer findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category") VocabularyBookCategory category,
+    Integer findByUserVocabularyTestTargetScore(@Param("user") User user, @Param("category") VocabularyBookCategory category,
                                                                                    @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
 }

@@ -85,6 +85,6 @@ public class UserServiceImpl implements UserService {
         // 토큰을 Redis에 저장한다.
         tokenService.saveTokenInfo(user.getLoginId(), refreshToken, accessToken);
 
-        return new GeneratedToken(accessToken, refreshToken);
+        return new GeneratedToken(accessToken, refreshToken, user.getRole());
     }
 }

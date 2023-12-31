@@ -12,4 +12,6 @@ public interface VocabularyLearningRepository extends JpaRepository<VocabularyLe
 
     VocabularyLearning findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category")VocabularyBookCategory category,
                                                                                 @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
+
+    VocabularyLearning findTop1ByUserAndVocabularyBookCategoryOrderByModifiedAtDesc(@Param("user") User user, @Param("category") VocabularyBookCategory category);
 }

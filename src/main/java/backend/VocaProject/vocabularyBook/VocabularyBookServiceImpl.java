@@ -1,5 +1,7 @@
 package backend.VocaProject.vocabularyBook;
 
+import backend.VocaProject.domain.VocabularyTest;
+import backend.VocaProject.vocabularyBook.dto.LastLearningAndTestRangeResponse;
 import backend.VocaProject.vocabularyLearning.VocabularyLearningRepository;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
@@ -9,6 +11,7 @@ import backend.VocaProject.vocabularyBook.dto.VocabularyBookListResponse;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookResponse;
 import backend.VocaProject.vocabularyBook.dto.VocabularyLearningRequest;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
+import backend.VocaProject.vocabularyTest.VocabularyTestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -30,6 +33,8 @@ public class VocabularyBookServiceImpl implements VocabularyBookService{
     private final VocabularyBookCategoryRepository categoryRepository;
 
     private final VocabularyLearningRepository vocabularyLearningRepository;
+
+    private final VocabularyTestRepository testRepository;
 
     /**
      * 단어장 조회
@@ -72,5 +77,29 @@ public class VocabularyBookServiceImpl implements VocabularyBookService{
             vocabularyLearning = new VocabularyLearning(category, user, request.getLearningTime(), request.getFirstDay(), request.getLastDay());
             vocabularyLearningRepository.save(vocabularyLearning);
         }
+    }
+
+    /**
+     * 단어장 카테고리별 마지막 학습, 테스트 범위 조회
+     * 유저, 카테고리로 마지막 학습 범위, 마지막 테스트 범위를 조회한다.
+     * @param auth
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public LastLearningAndTestRangeResponse findByLastLearningAndTestRange(Authentication auth, Long categoryId) {
+        User user = (User) auth.getPrincipal();
+        VocabularyBookCategory category = categoryRepository.findById(categoryId).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
+        VocabularyLearning vocabularyLearning = vocabularyLearningRepository.findTop1ByUserAndVocabularyBookCategoryOrderByModifiedAtDesc(user, category);
+        VocabularyTest vocabularyTest = testRepository.findTop1ByUserAndVocabularyBookCategoryOrderByModifiedAtDesc(user, category);
+
+        int learningFirstDay = (vocabularyLearning != null) ? vocabularyLearning.getFirstDay() : 0;
+        int learningLastDay = (vocabularyLearning != null) ? vocabularyLearning.getLastDay() : 0;
+        int testFirstDay = (vocabularyTest != null) ? vocabularyTest.getFirstDay() : 0;
+        int testLastDay = (vocabularyTest != null) ? vocabularyTest.getLastDay() : 0;
+
+        LastLearningAndTestRangeResponse response = new LastLearningAndTestRangeResponse(learningFirstDay, learningLastDay, testFirstDay, testLastDay);
+
+        return response;
     }
 }

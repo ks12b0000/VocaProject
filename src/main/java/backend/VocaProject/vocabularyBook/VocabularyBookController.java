@@ -2,6 +2,7 @@ package backend.VocaProject.vocabularyBook;
 
 import backend.VocaProject.response.BaseResponse;
 import backend.VocaProject.response.ValidationSequence;
+import backend.VocaProject.vocabularyBook.dto.LastLearningAndTestRangeResponse;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookListResponse;
 import backend.VocaProject.vocabularyBook.dto.VocabularyLearningRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,5 +44,16 @@ public class VocabularyBookController {
         vocabularyBookService.vocabularyBookEndByLearningSave(auth, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "단어장 학습 저장에 성공했습니다."));
+    }
+
+    @Operation(summary = "단어장 최근 학습, 테스트 범위 조회 API", responses = {
+            @ApiResponse(responseCode = "200", description = "단어장 최근 학습, 테스트 범위 조회에 성공했습니다.")
+    })
+    @Tag(name = "VocabularyBook")
+    @GetMapping("/vocabulary-book/last/range")
+    public ResponseEntity findByLastLearningAndTestRange(Authentication auth, @RequestParam Long categoryId) {
+        LastLearningAndTestRangeResponse response = vocabularyBookService.findByLastLearningAndTestRange(auth, categoryId);
+
+        return ResponseEntity.ok().body(new BaseResponse<>(200, "단어장 최근 학습, 테스트 범위 조회에 성공했습니다.", response));
     }
 }

@@ -19,4 +19,6 @@ public interface VocabularyTestRepository extends JpaRepository<VocabularyTest, 
 
     VocabularyTest findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category") VocabularyBookCategory category,
                                                              @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
+
+    VocabularyTest findTop1ByUserAndVocabularyBookCategoryOrderByModifiedAtDesc(@Param("user") User user, @Param("category") VocabularyBookCategory category);
 }

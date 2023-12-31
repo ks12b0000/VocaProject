@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor
 @Entity
@@ -44,4 +45,25 @@ public class VocabularyTest extends BaseTimeEntity {
     @Column(nullable = false)
     private int lastDay;
 
+    @Column
+    @Convert(converter = StringListConverter.class)
+    private List<String> wrongWords;
+
+    public VocabularyTest(User user, VocabularyBookCategory vocabularyBookCategory, int testCount, String result, String record, int firstDay, int lastDay, List<String> wrongWords) {
+        this.user = user;
+        this.vocabularyBookCategory = vocabularyBookCategory;
+        this.testCount = testCount;
+        this.result = result;
+        this.record = record;
+        this.firstDay = firstDay;
+        this.lastDay = lastDay;
+        this.wrongWords = wrongWords;
+    }
+
+    public void testUpdate(int testCount, String result, String record, List<String> wrongWords) {
+        this.testCount = testCount;
+        this.result = result;
+        this.record = record;
+        this.wrongWords = wrongWords;
+    }
 }

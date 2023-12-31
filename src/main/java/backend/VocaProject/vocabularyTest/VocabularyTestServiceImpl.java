@@ -2,11 +2,13 @@ package backend.VocaProject.vocabularyTest;
 
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
+import backend.VocaProject.domain.VocabularyTest;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestListResponse;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestResponse;
+import backend.VocaProject.vocabularyTest.dto.VocabularyTestResultRequest;
 import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +53,7 @@ public class VocabularyTestServiceImpl implements VocabularyTestService {
         List<Tuple> tuples = vocabularyBookRepository.findByVocabularyTestList(category.getId(), firstDay, lastDay);
         User user = (User) auth.getPrincipal();
         Integer testTargetScore = settingRepository.findByUserVocabularyTestTargetScore(user, category, firstDay, lastDay);
-        Integer testCount = vocabularyTestRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, firstDay, lastDay);
+        Integer testCount = vocabularyTestRepository.findByTestCount(user, category, firstDay, lastDay);
 
         VocabularyTestListResponse response = new VocabularyTestListResponse(mapTuplesToResponses(tuples), firstDay, lastDay, tuples.size(), category.getName(), testTargetScore, testCount);
 
@@ -70,5 +72,28 @@ public class VocabularyTestServiceImpl implements VocabularyTestService {
                         .wrongMeaning4(tuple.get(6, String.class))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 단어 테스트 결과 저장
+     * 유저, 카테고리, 테스트 범위로 테스트 결과가 저장 되어있는지 확인 후
+     * 만약 이미 저장 된 테스트 결과라면 테스트 횟수, 결과, 성적, 틀린 단어를 업데이트 하고
+     * 저장 되어있지 않다면 유저, 카테고리, 테스트 횟수, 결과, 성적, 범위, 틀린 단어로 테스트 결과를 저장한다.
+     * @param auth
+     * @param request
+     */
+    @Override
+    @Transactional
+    public void vocabularyTestResultSave(Authentication auth, VocabularyTestResultRequest request) {
+        User user = (User) auth.getPrincipal();
+        VocabularyBookCategory category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
+        VocabularyTest vocabularyTest = vocabularyTestRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, request.getFirstDay(), request.getLastDay());
+
+        if (vocabularyTest != null) {
+            vocabularyTest.testUpdate(vocabularyTest.getTestCount() + 1, request.getResult(), request.getRecord(), request.getWrongWord());
+        } else {
+            vocabularyTest = new VocabularyTest(user, category, 1, request.getResult(), request.getRecord(), request.getFirstDay(), request.getLastDay(), request.getWrongWord());
+            vocabularyTestRepository.save(vocabularyTest);
+        }
     }
 }

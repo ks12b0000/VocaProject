@@ -14,6 +14,9 @@ public interface VocabularyTestRepository extends JpaRepository<VocabularyTest, 
     @Query("select testCount " +
             "from VocabularyTest " +
             "where user = :user And vocabularyBookCategory = :category And firstDay = :firstDay And lastDay = :lastDay")
-    Integer findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category") VocabularyBookCategory category,
+    Integer findByTestCount(@Param("user") User user, @Param("category") VocabularyBookCategory category,
                                                                                    @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
+
+    VocabularyTest findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(@Param("user") User user, @Param("category") VocabularyBookCategory category,
+                                                             @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
 }

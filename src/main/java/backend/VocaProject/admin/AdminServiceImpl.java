@@ -44,24 +44,13 @@ public class AdminServiceImpl implements AdminService {
     public List<UserListResponse> userList(Authentication admin, String className) {
         User user = (User) admin.getPrincipal();
 
-        // 유저의 클래스 이름이 master면(마스터 관리자)
         if (user.getClassName().equals("master")) {
-            // 입력한 keyword가 all 이면 전체 유저 목록 조회
-            if (className.equals("all")) {
-                List<UserListResponse> allList = userRepository.findByApproval("Y").stream().map(UserListResponse::new).collect(Collectors.toList());
-                return allList;
-            }
-            else {
-                // 입력한 keyword에 맞는 클래스의 승인 여부가 Y인 유저 목록
-                List<UserListResponse> listByClass = userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
-                return listByClass;
-            }
-        }
-        // 중간 관리자가 요청했을 경우 자기가 맡은 클래스의 승인 여부가 Y인 유저 목록만 조회
-        else {
+            return className.equals("all") ?
+                    userRepository.findByApproval("Y").stream().map(UserListResponse::new).collect(Collectors.toList()) :
+                    userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
+        } else {
             className = user.getClassName();
-            List<UserListResponse> listByClass = userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
-            return listByClass;
+            return userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
         }
     }
 
@@ -168,22 +157,21 @@ public class AdminServiceImpl implements AdminService {
         VocabularyBookCategory category = vocabularyBookCategoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new BaseException(NON_EXISTENT_VOCABULARY_BOOK));
         VocabularyTestSetting vocabularyTestSetting = vocabularyTestSettingRepository.findByUserAndVocabularyBookCategoryAndFirstDayAndLastDay(user, category, request.getFirstDay(), request.getLastDay());
 
+        boolean isAdminUserMaster = adminUser.getClassName().equals("master");
+        boolean isAdminUserSameClass = adminUser.getClassName().equals(user.getClassName());
+
         if (vocabularyTestSetting == null) {
-            vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
-            if (adminUser.getClassName().equals("master")) {
+            if (isAdminUserMaster || (isAdminUserSameClass && !isAdminUserMaster)) {
+                vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
                 vocabularyTestSettingRepository.save(vocabularyTestSetting);
             } else {
-                // 중간 관리자는 자기가 맡은 클래스의 유저만 정답률 설정 가능
-                if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
-                vocabularyTestSettingRepository.save(vocabularyTestSetting);
+                throw new BaseException(WITHOUT_ACCESS_USER);
             }
         } else {
-            if (adminUser.getClassName().equals("master")) {
+            if (isAdminUserMaster || (isAdminUserSameClass && !isAdminUserMaster)) {
                 vocabularyTestSetting.updateTargetScore(request.getTargetScore());
             } else {
-                // 중간 관리자는 자기가 맡은 클래스의 유저만 정답률 설정 가능
-                if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
-                vocabularyTestSetting.updateTargetScore(request.getTargetScore());
+                throw new BaseException(WITHOUT_ACCESS_USER);
             }
         }
     }

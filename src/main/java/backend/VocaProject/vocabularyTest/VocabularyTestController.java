@@ -5,6 +5,7 @@ import backend.VocaProject.response.ValidationSequence;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestListResponse;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestResponse;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestResultRequest;
+import backend.VocaProject.vocabularyTest.dto.WrongWordsListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,5 +47,16 @@ public class VocabularyTestController {
         vocabularyTestService.vocabularyTestResultSave(auth, request);
 
         return ResponseEntity.ok().body(new BaseResponse<>(200, "단어 테스트 결과 저장에 성공했습니다."));
+    }
+
+    @Operation(summary = "단어 테스트 틀린 단어 조회 API", responses = {
+            @ApiResponse(responseCode = "200", description = "단어 테스트 틀린 단어 조회에 성공했습니다.")
+    })
+    @Tag(name = "VocabularyTest")
+    @PostMapping("/vocabulary-test/wrong/words")
+    public ResponseEntity vocabularyTestWrongWords(Authentication auth) {
+        WrongWordsListResponse response = vocabularyTestService.vocabularyTestWrongWords(auth);
+
+        return ResponseEntity.ok().body(new BaseResponse<>(200, "단어 테스트 틀린 단어 조회에 성공했습니다.", response));
     }
 }

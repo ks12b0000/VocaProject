@@ -4,6 +4,7 @@ import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBook;
 import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.vocabularyBook.dto.VocabularyBookResponse;
+import backend.VocaProject.vocabularyBook.dto.WrongWordsResponse;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,5 +53,10 @@ public interface VocabularyBookRepository extends JpaRepository<VocabularyBook, 
             "GROUP BY word_id, word, original_meaning " +
             "ORDER BY RAND()", nativeQuery = true)
     List<Tuple> findByVocabularyTestList(@Param("category") long category, @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
+
+    @Query("select new backend.VocaProject.vocabularyBook.dto.WrongWordsResponse( " +
+            "m.id, m.word, m.meaning, m.vocabularyBookCategory.id, m.day) " +
+            "from VocabularyBook m where m.word IN (:wrongWords)")
+    List<WrongWordsResponse> findByWordIn(@Param("wrongWords") List<String> wrongWords);
 
 }

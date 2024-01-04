@@ -1,14 +1,17 @@
 package backend.VocaProject.vocabularyTest;
 
 import backend.VocaProject.domain.User;
+import backend.VocaProject.domain.VocabularyBook;
 import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.domain.VocabularyTest;
 import backend.VocaProject.response.BaseException;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
+import backend.VocaProject.vocabularyBook.dto.WrongWordsResponse;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestListResponse;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestResponse;
 import backend.VocaProject.vocabularyTest.dto.VocabularyTestResultRequest;
+import backend.VocaProject.vocabularyTest.dto.WrongWordsListResponse;
 import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Tuple;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,5 +99,30 @@ public class VocabularyTestServiceImpl implements VocabularyTestService {
             vocabularyTest = new VocabularyTest(user, category, 1, request.getResult(), request.getRecord(), request.getFirstDay(), request.getLastDay(), request.getWrongWord());
             vocabularyTestRepository.save(vocabularyTest);
         }
+    }
+
+    /**
+     * 단어 테스트 틀린 단어 조회
+     * user로 단어 테스트 결과를 조회해서 틀린 단어들을 조회 후
+     * 현재 DB에 저장을 list형식으로 저장했기 때문에 ,로 split 후
+     * 중복 된 단어는 제거해서 단어장 테이블에서 단어들을 조회한다.
+     * @param auth
+     * @return
+     */
+    @Override
+    public WrongWordsListResponse vocabularyTestWrongWords(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        List<String> wrongWords = vocabularyTestRepository.findByUserWrongWords(user);
+
+        List<String> uniqueWords = wrongWords.stream()
+                .flatMap(word -> Arrays.stream(word.split(",")))
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<WrongWordsResponse> list = vocabularyBookRepository.findByWordIn(uniqueWords);
+
+        WrongWordsListResponse response = new WrongWordsListResponse(list, list.size());
+
+        return response;
     }
 }

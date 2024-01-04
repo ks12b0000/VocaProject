@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface VocabularyTestRepository extends JpaRepository<VocabularyTest, Long> {
 
@@ -21,4 +23,9 @@ public interface VocabularyTestRepository extends JpaRepository<VocabularyTest, 
                                                              @Param("firstDay") int firstDay, @Param("lastDay") int lastDay);
 
     VocabularyTest findTop1ByUserAndVocabularyBookCategoryOrderByModifiedAtDesc(@Param("user") User user, @Param("category") VocabularyBookCategory category);
+
+    @Query("select wrongWords " +
+            "from VocabularyTest " +
+            "where user = :user")
+    List<String> findByUserWrongWords(@Param("user") User user);
 }

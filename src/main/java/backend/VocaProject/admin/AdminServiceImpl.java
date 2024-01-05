@@ -8,8 +8,10 @@ import backend.VocaProject.response.BaseException;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
+import backend.VocaProject.vocabularyTest.VocabularyTestRepository;
 import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ public class AdminServiceImpl implements AdminService {
     private final VocabularyBookCategoryRepository vocabularyBookCategoryRepository;
 
     private final VocabularyTestSettingRepository vocabularyTestSettingRepository;
+
+    private final VocabularyTestRepository vocabularyTestRepository;
 
     /**
      * 유저 목록 조회
@@ -174,5 +178,23 @@ public class AdminServiceImpl implements AdminService {
                 throw new BaseException(WITHOUT_ACCESS_USER);
             }
         }
+    }
+
+    /**
+     * 단어 테스트 결과 목록 조회
+     * masterAdmin이면 전체 학생의 테스트 결과를 조회하고
+     * middleAdmin이면 자신의 클래스의 학생들의 테스트 결과를 조회한다.
+     * @param admin
+     * @param pageable
+     * @return
+     */
+    @Override
+    public List<VocabularyTestResultListResponse> vocabularyTestResultLists(Authentication admin, Pageable pageable) {
+        User adminUser = (User) admin.getPrincipal();
+        String className = adminUser.getClassName();
+
+        List<VocabularyTestResultListResponse> responses = vocabularyTestRepository.findByTestResultList(pageable, className.equals("master") ? null : className);
+
+        return responses;
     }
 }

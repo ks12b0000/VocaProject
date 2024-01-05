@@ -29,7 +29,7 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").access("hasRole('ROLE_USER')")
+                .antMatchers("/api/auth/**").access("hasRole('ROLE_USER') or hasRole('ROLE_MASTER_ADMIN') or hasRole('ROLE_MIDDLE_ADMIN')")
                 .antMatchers("/api/admin/**").access("hasRole('ROLE_MASTER_ADMIN') or hasRole('ROLE_MIDDLE_ADMIN')")
                 .antMatchers("/api/master-admin/**").access("hasRole('ROLE_MASTER_ADMIN')")
                 .anyRequest().permitAll()

@@ -53,7 +53,7 @@ public class VocabularyTestController {
             @ApiResponse(responseCode = "200", description = "단어 테스트 틀린 단어 조회에 성공했습니다.")
     })
     @Tag(name = "VocabularyTest")
-    @PostMapping("/vocabulary-test/wrong/words")
+    @GetMapping("/vocabulary-test/wrong/words")
     public ResponseEntity vocabularyTestWrongWords(Authentication auth) {
         WrongWordsListResponse response = vocabularyTestService.vocabularyTestWrongWords(auth);
 

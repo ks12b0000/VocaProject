@@ -1,6 +1,7 @@
 package backend.VocaProject.admin;
 
 import backend.VocaProject.admin.dto.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -22,4 +23,6 @@ public interface AdminService {
     void vocabularyBookDelete(Long categoryId);
 
     void vocabularyTestSetting(Authentication admin, VocabularyTestSettingRequest request);
+
+    List<VocabularyTestResultListResponse> vocabularyTestResultLists(Authentication admin, Pageable pageable);
 }

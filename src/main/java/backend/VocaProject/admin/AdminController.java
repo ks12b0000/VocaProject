@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -108,6 +111,17 @@ public class AdminController {
         adminService.vocabularyTestSetting(admin, request);
 
         return ResponseEntity.ok().body(new BaseResponse(200, "유저별 단어 테스트 설정에 성공했습니다."));
+    }
+
+    @Operation(summary = "단어 테스트 결과 목록 조회 API", responses = {
+            @ApiResponse(responseCode = "200", description = "단어 테스트 결과 목록 조회에 성공했습니다.")
+    })
+    @Tag(name = "Admin")
+    @GetMapping("/admin/vocabulary-book/test/result/list")
+    public ResponseEntity vocabularyTestResultLists(Authentication admin, @PageableDefault(size = 10, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        List<VocabularyTestResultListResponse> response = adminService.vocabularyTestResultLists(admin, pageable);
+
+        return ResponseEntity.ok().body(new BaseResponse(200, "단어 테스트 결과 목록 조회에 성공했습니다.", response));
     }
 
 }

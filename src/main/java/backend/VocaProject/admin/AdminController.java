@@ -10,11 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -88,7 +90,7 @@ public class AdminController {
     public ResponseEntity userDelete(@PathVariable Long userId) {
         adminService.userDelete(userId);
 
-        return ResponseEntity.ok(new BaseResponse(200, "유저 삭제에 성공했습니다."));
+        return ResponseEntity.ok().body(new BaseResponse(200, "유저 삭제에 성공했습니다."));
     }
 
     @Operation(summary = "단어장 삭제 API", responses = {
@@ -110,7 +112,7 @@ public class AdminController {
     public ResponseEntity vocabularyTestSetting(Authentication admin, @Validated(ValidationSequence.class) @RequestBody VocabularyTestSettingRequest request) {
         adminService.vocabularyTestSetting(admin, request);
 
-        return ResponseEntity.ok().body(new BaseResponse(200, "유저별 단어 테스트 설정에 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponse(201, "유저별 단어 테스트 설정에 성공했습니다."));
     }
 
     @Operation(summary = "단어 테스트 결과 목록 조회 API", responses = {

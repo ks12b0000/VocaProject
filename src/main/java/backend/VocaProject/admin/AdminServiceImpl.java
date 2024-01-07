@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static backend.VocaProject.response.BaseExceptionStatus.*;
@@ -42,24 +41,24 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 유저 목록 조회
+     * masterAdmin이면 입력 받은 className으로(all = 전체) 어플 사용 승인된 유저를 조회하고,
+     * middleAdmin이면 자신이 맡은 class의 어플 사용 승인된 유저들만 조회한다.
      * @return
      */
     @Override
     public List<UserListResponse> userList(Authentication admin, String className) {
-        User user = (User) admin.getPrincipal();
+        User adminUser = (User) admin.getPrincipal();
 
-        if (user.getClassName().equals("master")) {
-            return className.equals("all") ?
-                    userRepository.findByApproval("Y").stream().map(UserListResponse::new).collect(Collectors.toList()) :
-                    userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
-        } else {
-            className = user.getClassName();
-            return userRepository.findByClassNameAndApproval(className, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
-        }
+        String targetClassName = adminUser.getClassName().equals("master") ? className : adminUser.getClassName();
+
+        return (targetClassName.equals("all")) ?
+                userRepository.findByApproval("Y").stream().map(UserListResponse::new).collect(Collectors.toList()) :
+                userRepository.findByClassNameAndApproval(targetClassName, "Y").stream().map(UserListResponse::new).collect(Collectors.toList());
     }
 
     /**
-     * 유저 승인X 목록 조회
+     * 유저 어플 사용 승인X 목록 조회
+     * 어플 사용 승인이 되지 않은 모든 유저를 조회한다.
      * @return
      */
     @Override
@@ -68,7 +67,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     * 유저 승인 여부 변경
+     * 유저 어플 사용 승인 여부 변경
+     * 어플 사용을 승인한다면 approval = Y, role = ROLE_USER(일반 유저) OR ROLE_MIDDLEA_ADMIN(중간 관리자)로 변경하고,
+     * 어플 사용을 취소한다면 approval = N, role = ROLE_NULL로 변경한다.
      * @param request
      */
     @Override
@@ -81,6 +82,8 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 유저 정보 변경
+     * masterAdmind이면 전체 유저의 role, className을 변경이 가능하고,
+     * middleAdmind이면 자신이 맡은 class의 유저들의 className만 변경이 가능하다.
      * @param admin
      * @param request
      */
@@ -90,20 +93,21 @@ public class AdminServiceImpl implements AdminService {
         User adminUser = (User) admin.getPrincipal();
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
 
-        // 마스터 관리자일 경우 role, className 변경 가능
         if (adminUser.getClassName().equals("master")) {
             user.updateUser(request.getRole(), request.getClassName());
-        }
-        else {
-            // 중간 관리자는 자기가 맡은 클래스의 유저만 변경 가능
-            if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
-            // 중간 관리자는 className만 변경 가능
+        } else {
+            // middleAdmind이 자신이 맡은 클래스의 유저가 아닌 유저의 정보를 변경하려고 한다면 예외처리.
+            if (!adminUser.getClassName().equals(user.getClassName())) {
+                throw new BaseException(WITHOUT_ACCESS_USER);
+            }
             user.updateUser(request.getClassName());
         }
     }
 
     /**
      * 유저 비밀번호 변경
+     * masterAdmin이면 모든 유저의 비밀번호를 변경 가능하고,
+     * middleAdmin이면 자신이 맡은 class의 유저들의 비밀번호만 변경이 가능하다.
      * @param admin
      * @param request
      */
@@ -114,18 +118,17 @@ public class AdminServiceImpl implements AdminService {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BaseException(NON_EXISTENT_USER));
         String enPassword = bCryptPasswordEncoder.encode(request.getPassword());
 
-        if (adminUser.getClassName().equals("master")) {
-            user.updateUserPassword(enPassword);
+        // middleAdmind이 자신이 맡은 클래스의 유저가 아닌 유저의 비밀번호를 변경하려고 한다면 예외처리.
+        if (!adminUser.getClassName().equals("master") && !adminUser.getClassName().equals(user.getClassName())) {
+            throw new BaseException(WITHOUT_ACCESS_USER);
         }
-        else {
-            // 중간 관리자는 자기가 맡은 클래스의 유저만 변경 가능
-            if (!adminUser.getClassName().equals(user.getClassName())) throw new BaseException(WITHOUT_ACCESS_USER);
-            user.updateUserPassword(enPassword);
-        }
+
+        user.updateUserPassword(enPassword);
     }
 
     /**
      * 유저 삭제
+     * masterAdmin만 유저 삭제가 가능하다.
      * @param userId
      */
     @Override
@@ -138,6 +141,7 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 단어장 삭제
+     * masterAdmin만 단어장 삭제가 가능하다.
      * @param categoryId
      */
     @Override
@@ -150,6 +154,10 @@ public class AdminServiceImpl implements AdminService {
 
     /**
      * 유저별 단어 테스트 목표 정답률 설정
+     * 이미 단어 테스트 목표 정답률을 설정하였다면 targetScore를 수정하고
+     * 설정하지 않았다면 category, user, teargetScore, firstDay, lastDay로 저장한다.
+     * masterAdmin은 모든 유저의 목표 정답률 설정 및 수정이 가능하고,
+     * middleAdmin은 자신이 맡은 class의 유저들의 목표 정답률 설정 및 수정이 가능하다.
      * @param admin
      * @param request
      */
@@ -164,19 +172,14 @@ public class AdminServiceImpl implements AdminService {
         boolean isAdminUserMaster = adminUser.getClassName().equals("master");
         boolean isAdminUserSameClass = adminUser.getClassName().equals(user.getClassName());
 
-        if (vocabularyTestSetting == null) {
-            if (isAdminUserMaster || (isAdminUserSameClass && !isAdminUserMaster)) {
-                vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
-                vocabularyTestSettingRepository.save(vocabularyTestSetting);
-            } else {
-                throw new BaseException(WITHOUT_ACCESS_USER);
-            }
+        if ((isAdminUserMaster || isAdminUserSameClass) && vocabularyTestSetting == null) {
+            vocabularyTestSetting = new VocabularyTestSetting(category, user, request.getTargetScore(), request.getFirstDay(), request.getLastDay());
+            vocabularyTestSettingRepository.save(vocabularyTestSetting);
+        } else if ((isAdminUserMaster || isAdminUserSameClass) && vocabularyTestSetting != null) {
+            vocabularyTestSetting.updateTargetScore(request.getTargetScore());
         } else {
-            if (isAdminUserMaster || (isAdminUserSameClass && !isAdminUserMaster)) {
-                vocabularyTestSetting.updateTargetScore(request.getTargetScore());
-            } else {
-                throw new BaseException(WITHOUT_ACCESS_USER);
-            }
+            // middleAdmind이 자신이 맡은 클래스의 유저가 아닌 유저의 목표 정답률을 설정하려고 한다면 예외처리.
+            throw new BaseException(WITHOUT_ACCESS_USER);
         }
     }
 

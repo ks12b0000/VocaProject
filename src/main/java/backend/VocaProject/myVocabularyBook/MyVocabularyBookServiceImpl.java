@@ -43,7 +43,7 @@ public class MyVocabularyBookServiceImpl implements MyVocabularyBookService {
             throw new BaseException(DUPLICATE_MY_VOCABULARY_BOOK);
         }
 
-        MyVocabularyBook myVocabularyBook = MyVocabularyBook.builder().user(user).vocabularyBook(vocabularyBook).build();
+        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(user, vocabularyBook);
 
         myVocabularyBookRepository.save(myVocabularyBook);
     }

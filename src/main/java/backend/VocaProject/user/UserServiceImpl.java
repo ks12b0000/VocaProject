@@ -68,16 +68,15 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public GeneratedToken login(LoginRequest request) {
-        // 로그인 아이디로 유저 있는지 확인
-        User user = userRepository.findByLoginId(request.getLoginId()).orElseThrow(() -> new BaseException(LOGIN_USER_NOT_EXIST));
-
-        // 비밀번호 맞는지 확인
-        if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BaseException(LOGIN_USER_NOT_EXIST);
-        }
+        // 로그인 아이디, 패스워드로 유저 확인
+        User user = userRepository.findByLoginId(request.getLoginId())
+                .filter(u -> bCryptPasswordEncoder.matches(request.getPassword(), u.getPassword()))
+                .orElseThrow(() -> new BaseException(LOGIN_USER_NOT_EXIST));
 
         // 승인되지 않은 유저일 경우
-        if (user.getApproval().equals("N")) throw new BaseException(WITHOUT_ACCESS_USER);
+        if (user.getApproval().equals("N")) {
+            throw new BaseException(WITHOUT_ACCESS_USER);
+        }
 
         String refreshToken = generateRefreshToken(user.getLoginId(), user.getRole());
         String accessToken = generateAccessToken(user.getLoginId(), user.getRole());

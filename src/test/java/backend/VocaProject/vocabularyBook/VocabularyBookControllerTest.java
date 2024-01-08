@@ -95,8 +95,8 @@ class VocabularyBookControllerTest {
                 .characterEncoding("UTF-8"));
 
         // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("200"))
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("code").value("201"))
                 .andExpect(jsonPath("message").value("단어장 학습 저장에 성공했습니다."));
     }
 

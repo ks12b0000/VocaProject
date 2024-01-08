@@ -104,7 +104,7 @@ class MyVocabularyBookServiceTest {
         VocabularyBook vocabularyBook = beforeVocabularyBook();
         Long wordId = vocabularyBook.getId();
         User authUser = (User) user.getPrincipal();
-        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(1L, authUser, vocabularyBook);
+        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(authUser, vocabularyBook);
 
         // stub
         when(vocabularyBookRepository.findById(wordId)).thenReturn(Optional.ofNullable(vocabularyBook));

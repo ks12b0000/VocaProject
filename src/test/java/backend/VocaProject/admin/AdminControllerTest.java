@@ -280,8 +280,8 @@ public class AdminControllerTest {
         );
 
         // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("200"))
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("code").value("201"))
                 .andExpect(jsonPath("message").value("유저별 단어 테스트 설정에 성공했습니다."));
     }
 
@@ -312,8 +312,8 @@ public class AdminControllerTest {
         );
 
         // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("200"))
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("code").value("201"))
                 .andExpect(jsonPath("message").value("유저별 단어 테스트 설정에 성공했습니다."));
     }
 

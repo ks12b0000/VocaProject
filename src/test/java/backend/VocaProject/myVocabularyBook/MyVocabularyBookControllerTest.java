@@ -78,8 +78,8 @@ class MyVocabularyBookControllerTest {
         ResultActions resultActions = mvc.perform(post("/api/auth/my-vocabulary-book/" + wordId));
 
         // then
-        resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("code").value("200"))
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("code").value("201"))
                 .andExpect(jsonPath("message").value("나만의 단어장에 단어를 추가했습니다."));
     }
 
@@ -110,7 +110,7 @@ class MyVocabularyBookControllerTest {
         userRepository.save(user);
         VocabularyBook vocabularyBook = beforeVocabularyBook();
         vocabularyBookRepository.save(vocabularyBook);
-        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(1L, user, vocabularyBook);
+        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(user, vocabularyBook);
         myVocabularyBookRepository.save(myVocabularyBook);
         Long wordId = vocabularyBook.getId();
 
@@ -152,7 +152,7 @@ class MyVocabularyBookControllerTest {
         userRepository.save(user);
         VocabularyBook vocabularyBook = beforeVocabularyBook();
         vocabularyBookRepository.save(vocabularyBook);
-        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(1L, user, vocabularyBook);
+        MyVocabularyBook myVocabularyBook = new MyVocabularyBook(user, vocabularyBook);
         myVocabularyBookRepository.save(myVocabularyBook);
 
         // when

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -36,14 +37,14 @@ public class VocabularyBookController {
     }
 
     @Operation(summary = "단어장 학습 종료시 학습 저장 API", responses = {
-            @ApiResponse(responseCode = "200", description = "단어장 학습 저장에 성공했습니다.")
+            @ApiResponse(responseCode = "201", description = "단어장 학습 저장에 성공했습니다.")
     })
     @Tag(name = "VocabularyBook")
     @PostMapping("/vocabulary-book/learning")
     public ResponseEntity vocabularyBookEndByLearningSave(Authentication auth, @Validated(ValidationSequence.class) @RequestBody VocabularyLearningRequest request) {
         vocabularyBookService.vocabularyBookEndByLearningSave(auth, request);
 
-        return ResponseEntity.ok().body(new BaseResponse<>(200, "단어장 학습 저장에 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponse<>(201, "단어장 학습 저장에 성공했습니다."));
     }
 
     @Operation(summary = "단어장 최근 학습, 테스트 범위 조회 API", responses = {

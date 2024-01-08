@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -55,6 +54,6 @@ public class CsvController {
         // 파일을 읽어 디비 저장 함수
         csvService.csvInsert(file);
 
-        return ResponseEntity.created(URI.create("/api/csv")).body(new BaseResponse<>(201, "csv 파일 올리기에 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponse<>(201, "csv 파일 올리기에 성공했습니다."));
     }
 }

@@ -16,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -105,7 +104,7 @@ public class AdminController {
     }
 
     @Operation(summary = "유저별 단어 테스트 설정 API", responses = {
-            @ApiResponse(responseCode = "200", description = "유저별 단어 테스트 설정에 성공했습니다.")
+            @ApiResponse(responseCode = "201", description = "유저별 단어 테스트 설정에 성공했습니다.")
     })
     @Tag(name = "Admin")
     @PostMapping("/admin/vocabulary-book/test/setting")

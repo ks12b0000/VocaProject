@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -36,14 +37,9 @@ public class UserController {
 
         userService.userJoin(request);
 
-        return ResponseEntity.created(URI.create("/api/users" + request)).body(new BaseResponse(201, "회원가입에 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponse(201, "회원가입에 성공했습니다."));
     }
 
-    /**
-     * [GET] /api/user/duplicate-check?loginId=
-     * @param loginId
-     * @return
-     */
     @Operation(summary = "로그인 아이디 중복체크 API", responses = {
             @ApiResponse(responseCode = "200", description = "사용 가능한 아이디 입니다.")
     })

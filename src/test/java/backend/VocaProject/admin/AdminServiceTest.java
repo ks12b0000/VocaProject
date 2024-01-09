@@ -1,28 +1,27 @@
 package backend.VocaProject.admin;
 
-import backend.VocaProject.admin.dto.ApprovalUpdateRequest;
-import backend.VocaProject.admin.dto.UserListResponse;
-import backend.VocaProject.admin.dto.UserUpdateRequest;
-import backend.VocaProject.admin.dto.VocabularyTestSettingRequest;
+import backend.VocaProject.admin.dto.*;
 import backend.VocaProject.domain.User;
 import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.user.UserServiceImpl;
 import backend.VocaProject.user.dto.JoinRequest;
+import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
+import backend.VocaProject.vocabularyTest.VocabularyTestRepository;
 import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +33,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,7 @@ public class AdminServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
+    @Spy
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Mock
@@ -58,6 +58,12 @@ public class AdminServiceTest {
 
     @Mock
     private VocabularyTestSettingRepository vocabularyTestSettingRepository;
+
+    @Mock
+    private VocabularyBookRepository vocabularyBookRepository;
+
+    @Mock
+    private VocabularyTestRepository vocabularyTestRepository;
 
 
     @DisplayName("테스트를 위한 유저 저장")
@@ -128,6 +134,17 @@ public class AdminServiceTest {
     }
 
     @Test
+    @DisplayName("사용 승인X 유저 목록 조회")
+    void userNonApprovalList() {
+        // given
+        // when
+        List<UserListResponse> responses = adminService.userNonApprovalList();
+
+        // then
+        assertThat(responses).isNotNull();
+    }
+
+    @Test
     @DisplayName("유저 승인 여부 변경")
     void userApproval() {
         // given
@@ -182,6 +199,7 @@ public class AdminServiceTest {
                 () -> assertThat(request.getClassName()).isEqualTo(user.getClassName())
         );
     }
+
     @Test
     @DisplayName("중간 관리자가 유저 정보 변경")
     void userUpdate2() {
@@ -214,6 +232,76 @@ public class AdminServiceTest {
     }
 
     @Test
+    @DisplayName("마스터 관리자가 유저 비밀번호 변경")
+    void userPasswordUpdate() {
+        // given
+        User adminUser = before();
+        adminUser.setClassName("master");
+        adminUser.setRole("ROLE_MASTER_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
+        User user = before();
+
+        // stub
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+        // when
+        UserUpdatePwRequest request = new UserUpdatePwRequest(user.getId(), "update12");
+        adminService.userPasswordUpdate(admin, request);
+
+        // then
+        assertTrue(bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword()));
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 유저 비밀번호 변경")
+    void userPasswordUpdate2() {
+        // given
+        User adminUser = before();
+        adminUser.setClassName("중등 초급");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
+        User user = before();
+        user.setClassName("중등 초급");
+
+        // stub
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+        // when
+        UserUpdatePwRequest request = new UserUpdatePwRequest(user.getId(), "update12");
+        adminService.userPasswordUpdate(admin, request);
+
+        // then
+        assertTrue(bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword()));
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 유저 비밀번호 변경 실패")
+    void userPasswordUpdateFail() {
+        // given
+        User adminUser = before();
+        adminUser.setClassName("중등 초급");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
+        User user = before();
+        user.setClassName("중등 중급");
+
+        // stub
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+        // when
+        UserUpdatePwRequest request = new UserUpdatePwRequest(user.getId(), "update12");
+
+        // then
+        assertThatThrownBy(() -> adminService.userPasswordUpdate(admin, request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
+    }
+
+    @Test
     @DisplayName("유저 삭제")
     void userDelete() {
         // given
@@ -228,6 +316,22 @@ public class AdminServiceTest {
         when(userRepository.findById(user.getId())).thenReturn(null);
         // then
         assertThat(userRepository.findById(user.getId())).isNull();
+    }
+
+    @Test
+    @DisplayName("단어장 삭제")
+    void vocabularyBookDelete() {
+        // given
+        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급");
+
+        // stub
+        when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
+
+        // when
+        adminService.vocabularyBookDelete(category.getId());
+
+        // then
+        assertThat(vocabularyBookRepository.findByVocabularyBookCategory(category)).isEmpty();
     }
 
     @Test
@@ -301,6 +405,44 @@ public class AdminServiceTest {
 
         // then
         assertThatThrownBy(() -> adminService.vocabularyTestSetting(admin, request)).hasMessage("권한이 없습니다. 관리자에게 문의하세요.");
+    }
+
+    @Test
+    @DisplayName("마스터 관리자가 단어 테스트 결과 목록 조회")
+    void vocabularyTestResultLists() {
+        // given
+        User adminUser = before();
+        adminUser.setClassName("master");
+        adminUser.setRole("ROLE_MASTER_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // when
+        List<VocabularyTestResultListResponse> responses = adminService.vocabularyTestResultLists(admin, pageable);
+
+        // then
+        assertThat(responses).isNotNull();
+    }
+
+    @Test
+    @DisplayName("중간 관리자가 단어 테스트 결과 목록 조회")
+    void vocabularyTestResultLists2() {
+        // given
+        User adminUser = before();
+        adminUser.setClassName("중등 초급");
+        adminUser.setRole("ROLE_MIDDLE_ADMIN");
+        Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
+                List.of(new SimpleGrantedAuthority(adminUser.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(admin);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // when
+        List<VocabularyTestResultListResponse> responses = adminService.vocabularyTestResultLists(admin, pageable);
+
+        // then
+        assertThat(responses).isNotNull();
     }
 
 }

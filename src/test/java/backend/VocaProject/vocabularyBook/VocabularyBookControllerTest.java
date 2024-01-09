@@ -1,8 +1,10 @@
 package backend.VocaProject.vocabularyBook;
 
 import backend.VocaProject.domain.User;
+import backend.VocaProject.domain.VocabularyBookCategory;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.vocabularyBook.dto.VocabularyLearningRequest;
+import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +39,9 @@ class VocabularyBookControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private VocabularyBookCategoryRepository categoryRepository;
 
     @DisplayName("단어장 조회 성공")
     @Test
@@ -120,6 +125,50 @@ class VocabularyBookControllerTest {
                 .content(content)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8"));
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value("400"))
+                .andExpect(jsonPath("message").value("존재하지 않는 단어장입니다."));
+    }
+
+    @DisplayName("단어장 카테고리별 마지막 학습, 테스트 범위 조회 성공")
+    @Test
+    void findByLastLearningAndTestRange() throws Exception {
+        // given
+        User user = new User("홍길동", "login1234", "password12");
+        user.setClassName("중등 초급");
+        user.setRole("ROLE_USER");
+        userRepository.save(user);
+        Authentication authUser = new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authUser);
+        VocabularyBookCategory category = new VocabularyBookCategory(1L, "중등 초급2");
+
+        // when
+        ResultActions resultActions = mvc.perform(get("/api/auth/vocabulary-book/last/range?categoryId=" + category.getId()));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("code").value("200"))
+                .andExpect(jsonPath("message").value("단어장 최근 학습, 테스트 범위 조회에 성공했습니다."));
+    }
+
+    @DisplayName("단어장 카테고리별 마지막 학습, 테스트 범위 조회 실패")
+    @Test
+    void findByLastLearningAndTestRangeFail() throws Exception {
+        // given
+        User user = new User("홍길동", "login1234", "password12");
+        user.setClassName("중등 초급");
+        user.setRole("ROLE_USER");
+        userRepository.save(user);
+        Authentication authUser = new UsernamePasswordAuthenticationToken(user, "",
+                List.of(new SimpleGrantedAuthority(user.getRole())));
+        SecurityContextHolder.getContext().setAuthentication(authUser);
+        VocabularyBookCategory category = new VocabularyBookCategory(121L, "중등 초급2");
+
+        // when
+        ResultActions resultActions = mvc.perform(get("/api/auth/vocabulary-book/last/range?categoryId=" + category.getId()));
 
         // then
         resultActions.andExpect(status().isBadRequest())

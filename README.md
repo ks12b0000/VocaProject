@@ -15,7 +15,8 @@
 - [Skils](#skils)
 - [ERD](#erd)
 - [API Reference](#api-reference)
-- [구현과정](#구현과정)
+- [이슈 및 개선사항](#이슈-및-개선사항)
+- [Test](#test)
 
 <br/>
 
@@ -33,72 +34,39 @@
 ![Static Badge](https://img.shields.io/badge/SpringSecurity-grean)
 <br/>
 데이터 베이스: ![Static Badge](https://img.shields.io/badge/mysql-blue)
+![Static Badge](https://img.shields.io/badge/redis-red)
 
 <br/>
 
 ## ERD
-<img width="632" alt="스크린샷 2023-11-14 오후 10 23 11" src="https://github.com/ks12b0000/VocaProject/assets/102012155/a6d8544b-7da7-4eda-a157-9a25935c4238">
+<img width="632" alt="스크린샷 2024-01-15 오후 3 05 07" src="https://github.com/ks12b0000/VocaProject/assets/102012155/0a9e84ee-88db-4ea3-9ceb-21e003c6f8e1">
 
 <br/>
 
 ## API Reference
 <img src="https://img.shields.io/badge/Swagger-6DB33F?style=for-the-badge&logo=SWAGGER&logoColor=white">
-<img width="697" alt="스크린샷 2023-11-14 오후 10 26 25" src="https://github.com/ks12b0000/VocaProject/assets/102012155/da20074d-9d28-4e6b-8af8-dbcd88825f8a">
+<img width="800" alt="스크린샷 2024-01-15 오후 3 09 06" src="https://github.com/ks12b0000/VocaProject/assets/102012155/5f41dc99-055c-4f9e-bffa-611ee146dcdf">
 
 <br/>
 
-## 구현과정
+## 이슈 및 개선사항
 
-<details>
-<summary>Admin - click</summary>
-  
-  - **유저 목록 조회**
+## 1. 단어 테스트 결과 목록 조회 No Offset, Covering Index, Non Clustered Index를 사용한 페이징 성능 9.85초 -> 0.014초로 개선
+[자세한 페이징 성능 과정 Click!](https://purple-knot-a8d.notion.site/No-Offset-Covering-Index-Non-Clustered-Index-7f2b909ed2bb417eb0d4cc8b778dbdcb?pvs=4)
+#### Covering Index, Non Clustered Index 적용 전 9.85초
+<img width="632" alt="스크린샷 2024-01-15 오후 3 05 07" src="https://github.com/ks12b0000/VocaProject/assets/102012155/58dff7c6-ae1a-4063-9cde-17a7872d251b">
+<br/>
 
-    1. 고려사항 : Admin 중 MasterAdmin은 전체 유저를 조회 가능 및 입력한 키워드에 맞는 클래스의 유저들을 조회할 수 있어야 하고, MiddleAdmin은 자신이 관리하는 클래스에 유저들만 조회할 수 있어야 한다.
-    2. 구현과정 : Parameter로 넘어온 adminId로 관리자를 조회해서 만약 masterAdmin이면 Parameter로 넘어온 class의 값으로 전체 유저를 조회하거나, 값에 맞는 클래스의 유저들을 조회한다. 만약 masterAdmin이 아니면 자신이 관리하는 클래스의 유저들만 조회할 수 있도록 하고 UserListResponse(username, loginId, role, approval, className)에 맞게 매핑하여 리스트로 반환하도록 설계하였습니다.
-   
- - **기능 사용 승인이 되지 않은 유저 조회**
-    1. 고려사항 : 회원가입은 되었지만 아직 승인이 되지 않아 기능을 사용할 수 없는 유저만 조회해야한다.
-    2. 구현과정 : DB에서 유저 정보에 Approval(승인)이 되지 않은 유저만 필터링 해서 조회해서 UserListResponse(username, loginId, role, approval, className)에 맞게 매핑하여 리스트로 반환하도록 설계하였습니다.
+#### Covering Index, Non Clustered Index 적용 후 0.014초
+<img width="632" alt="스크린샷 2024-01-15 오후 3 05 07" src="https://github.com/ks12b0000/VocaProject/assets/102012155/6f1c1416-28bb-450c-9cce-298e9ad06bc7">
 
- - **유저 승인 여부 변경**
-    1. 고려사항 : 유저의 승인을 허용하거나, 허용하지 않도록 변경해야한다.
-    2. 구현과정 : RequestBody로 userLoginId, approval, role을 받아 approval = N이면 userLoginId에 맞는 유저의 승인을 허용하지 않도록 변경하고, approval = Y이면 승인을 허용하게 변경하도록 설계하였습니다.
+<br/>
 
- - **유저 정보 변경**
-    1. 고려사항 : Admin 중 MasterAdmin은 전체 유저의 role, className만 변경 가능할 수 있어야 하고, MiddleAdmin은 자신이 관리하는 클래스에 유저의 className만 변경 가능할 수 있어야 한다.
-    2. 구현과정 : Parameter로 넘어온 adminId로 관리자를 조회해서 만약 masterAdmin이면 RequestBody로 받은 role, className으로 유저의 정보를 변경하고, 만약 masterAdmin이 아니면 className으로 자신이 관리하는 클래스의 유저만의 정보를 변경하도록 설계했습니다.
-  
- - **유저 비밀번호 변경**
-    1. 고려사항 : Admin 중 MasterAdmin은 전체 유저의 password만 변경 가능할 수 있어야 하고, MiddleAdmin은 자신이 관리하는 클래스에 유저의 password만 변경 가능할 수 있어야 한다.
-    2. 구현과정 : Parameter로 넘어온 adminId로 관리자를 조회해서 만약 masterAdmin이면 RequestBody로 받은 password를 받아 암호화하여 유저의 password를 변경하고, 만약 masterAdmin이 아니면 암호화한 password로 자신이 관리하는 클래스의 유저만의 password를 변경하도록 설계했습니다.
-      
- - **유저 삭제**
-    1. 고려사항 : MasterAdmin만이 유저를 삭제할 수 있고 MiddleAdmin은 API에 접근할 수 없어야 한다.
-    2. 구현과정 : SpringSecurity를 이용해 MasterAdmin만이 API에 접근할 수 있도록 설정하였고, Parameter로 넘어온 userLoginId로 유저를 삭제하도록 설계했습니다.
-  
- - **단어장 삭제**
-    1. 고려사항 : MasterAdmin만이 단어장을 삭제할 수 있고 MiddleAdmin은 API에 접근할 수 없어야 한다.
-    2. 구현과정 : SpringSecurity를 이용해 MasterAdmin만이 API에 접근할 수 있도록 설정하였고, Parameter로 넘어온 categoryId로 단어장을 삭제하도록 설계했습니다.
-</details>
+## 2. 한 눈에 알아보기 힘든 Code, 무분별한 if else Code Refactoring
+[before after Refactoring Code Click!](https://purple-knot-a8d.notion.site/VocaProject-ad532b65370e41aea5d4661dd3eef9ea?pvs=4)
 
-<details>
-<summary>CSV - click</summary>
-  
-  - **CSV DB에 저장**
-     1. 고려사항 : csv파일에 단어, 뜻, 카테고리, day로 저장된 단어장을 단어장 DB 컬럼에 맞게 매핑해야 한다.
-     2. 구현과정 : MultipartFile로 csv파일을 받고, 파일을 읽어 각 행을 ,로 나눠 단어장 컬럼에 맞게 매핑해서 저장하고, 만약 ,로 나눴을 때 "안녕, 안녕1" 처럼 단어의 뜻이 여러개라 ,으로 나누면 매핑이 제대로 되지 않을 수 있어 행을 나눌 때 ""안에 있는 ,은 제외하도록 설계하였습니다.
-</details>
+<br/>
 
-<details>
-<summary>Users - click</summary>
-  
-  - **유저 회원가입**
-     1. 고려사항 : 유저는 이름, 로그인 아이디, 비밀번호로 회원가입을 할 수 있고, 만약 셋 중 하나라도 값이 들어오지 않거나, 중복된 아이디라면 예외처리를 해야한다. 회원가입이 되면 유저의 승인여부는 N, 권한은 ROLE_NULL로 자동 설정되어 있어야 한다.
-     2. 구현과정 : RequestBody에 username, loginId, password를 입력 받아 만약 빈 값이 들어오면 예외처리를 해주기위해 Validated 어노테이션을 사용했고, loginId가 중복됐는지 확인하기 위해 loginId로 DB에 유저를 조회해서 있으면 예외처리를 해주고 없으면 password를 암호화해서 회원가입을 진행하도록 설계하였습니다.
-   
-  - **유저 로그인**
-     1. 고려사항 : 로그인 아이디, 비밀번호로 로그인을 할 수 있고, 만약 빈 값이 들어오거나, 승인되지 않은 유저가 로그인을 요청했을 경우 예외처리를 해야한다. 로그인이 완료되면 JWT Token도 발급되어야 한다.
-     2. 구현과정 : RequestBody에 loginId, password를 입력 받고, loginId로 DB에 유저를 조회해서 없거나, 있는데 승인여부가 N이라면 바로 예외처리를 해주고 있으면 유저의 password와 body로 받은 password가 일치한지 확인하고 JWT Token을 생성하도록 설계하였습니다.
-     
-</details>
+## Test
+- ServiceTest, RepositoryTest, ControllerTest 단위로 총 76개의 테스트 코드 작성
+<img width="295" alt="스크린샷 2024-01-15 오후 4 12 04" src="https://github.com/ks12b0000/VocaProject/assets/102012155/7cda4c41-a16c-4713-8951-d364b4f8f7e8">

@@ -4,6 +4,7 @@ import backend.VocaProject.admin.dto.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AdminService {
@@ -24,5 +25,5 @@ public interface AdminService {
 
     void vocabularyTestSetting(Authentication admin, VocabularyTestSettingRequest request);
 
-    List<VocabularyTestResultListResponse> vocabularyTestResultLists(Authentication admin, Pageable pageable);
+    List<VocabularyTestResultListResponse> vocabularyTestResultLists(Authentication admin, int size, LocalDateTime lastModifiedAt);
 }

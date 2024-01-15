@@ -13,6 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @AllArgsConstructor
+@Table(name = "vocabularyTest", indexes = @Index(name = "idxModifiedAt", columnList = "modifiedAt"))
 public class VocabularyTest extends BaseTimeEntity {
 
     @Id

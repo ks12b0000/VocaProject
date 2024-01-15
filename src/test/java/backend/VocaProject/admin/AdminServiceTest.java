@@ -8,6 +8,7 @@ import backend.VocaProject.user.UserServiceImpl;
 import backend.VocaProject.user.dto.JoinRequest;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
+import backend.VocaProject.vocabularyTest.VocabularyTestCustomRepositoryImpl;
 import backend.VocaProject.vocabularyTest.VocabularyTestRepository;
 import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +66,9 @@ public class AdminServiceTest {
 
     @Mock
     private VocabularyTestRepository vocabularyTestRepository;
+
+    @Mock
+    private VocabularyTestCustomRepositoryImpl vocabularyTestCustomRepository;
 
 
     @DisplayName("테스트를 위한 유저 저장")
@@ -417,10 +422,11 @@ public class AdminServiceTest {
         Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
                 List.of(new SimpleGrantedAuthority(adminUser.getRole())));
         SecurityContextHolder.getContext().setAuthentication(admin);
-        Pageable pageable = PageRequest.of(0, 10);
+        int size = 10;
+        LocalDateTime lastModifiedAt = LocalDateTime.parse("2024-01-14T14:20");
 
         // when
-        List<VocabularyTestResultListResponse> responses = adminService.vocabularyTestResultLists(admin, pageable);
+        List<VocabularyTestResultListResponse> responses = adminService.vocabularyTestResultLists(admin, size, lastModifiedAt);
 
         // then
         assertThat(responses).isNotNull();
@@ -436,10 +442,11 @@ public class AdminServiceTest {
         Authentication admin = new UsernamePasswordAuthenticationToken(adminUser, "",
                 List.of(new SimpleGrantedAuthority(adminUser.getRole())));
         SecurityContextHolder.getContext().setAuthentication(admin);
-        Pageable pageable = PageRequest.of(0, 10);
+        int size = 10;
+        LocalDateTime lastModifiedAt = LocalDateTime.parse("2024-01-14T14:20");
 
         // when
-        List<VocabularyTestResultListResponse> responses = adminService.vocabularyTestResultLists(admin, pageable);
+        List<VocabularyTestResultListResponse> responses = adminService.vocabularyTestResultLists(admin, size, lastModifiedAt);
 
         // then
         assertThat(responses).isNotNull();

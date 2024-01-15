@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -474,9 +475,11 @@ public class AdminControllerTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, "",
                 List.of(new SimpleGrantedAuthority(user.getRole())));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        int size = 10;
+        LocalDateTime lastModifiedAt = LocalDateTime.parse("2024-01-14T14:20");
 
         // when
-        ResultActions resultActions = mvc.perform(get("/api/admin/vocabulary-book/test/result/list"));
+        ResultActions resultActions = mvc.perform(get("/api/admin/vocabulary-book/test/result/list?size=" + size + "&lastModifiedAt=" + lastModifiedAt));
 
         // then
         resultActions.andExpect(status().isOk())
@@ -494,9 +497,11 @@ public class AdminControllerTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, "",
                 List.of(new SimpleGrantedAuthority(user.getRole())));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        int size = 10;
+        LocalDateTime lastModifiedAt = LocalDateTime.parse("2024-01-14T14:20");
 
         // when
-        ResultActions resultActions = mvc.perform(get("/api/admin/vocabulary-book/test/result/list"));
+        ResultActions resultActions = mvc.perform(get("/api/admin/vocabulary-book/test/result/list?size=" + size + "&lastModifiedAt=" + lastModifiedAt));
 
         // then
         resultActions.andExpect(status().isOk())

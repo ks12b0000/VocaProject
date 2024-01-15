@@ -8,6 +8,7 @@ import backend.VocaProject.response.BaseException;
 import backend.VocaProject.user.UserRepository;
 import backend.VocaProject.vocabularyBook.VocabularyBookRepository;
 import backend.VocaProject.vocabularyBookCategory.VocabularyBookCategoryRepository;
+import backend.VocaProject.vocabularyTest.VocabularyTestCustomRepository;
 import backend.VocaProject.vocabularyTest.VocabularyTestRepository;
 import backend.VocaProject.vocabularyTestSetting.VocabularyTestSettingRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,8 @@ public class AdminServiceImpl implements AdminService {
     private final VocabularyTestSettingRepository vocabularyTestSettingRepository;
 
     private final VocabularyTestRepository vocabularyTestRepository;
+
+    private final VocabularyTestCustomRepository vocabularyTestCustomRepository;
 
     /**
      * 유저 목록 조회
@@ -192,11 +196,11 @@ public class AdminServiceImpl implements AdminService {
      * @return
      */
     @Override
-    public List<VocabularyTestResultListResponse> vocabularyTestResultLists(Authentication admin, Pageable pageable) {
+    public List<VocabularyTestResultListResponse> vocabularyTestResultLists(Authentication admin, int size, LocalDateTime lastModifiedAt) {
         User adminUser = (User) admin.getPrincipal();
         String className = adminUser.getClassName();
 
-        List<VocabularyTestResultListResponse> responses = vocabularyTestRepository.findByTestResultList(pageable, className.equals("master") ? null : className);
+        List<VocabularyTestResultListResponse> responses = vocabularyTestCustomRepository.findByTestResultList(size, lastModifiedAt, className.equals("master") ? null : className);
 
         return responses;
     }

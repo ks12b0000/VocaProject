@@ -52,7 +52,7 @@
 ## 이슈 및 개선사항
 
 ## 1. 단어 테스트 결과 목록 조회 No Offset, Covering Index, Non Clustered Index를 사용한 페이징 성능 9.85초 -> 0.014초로 개선
-[자세한 페이징 성능 과정 Click!](https://purple-knot-a8d.notion.site/No-Offset-Covering-Index-Non-Clustered-Index-7f2b909ed2bb417eb0d4cc8b778dbdcb?pvs=4)
+[자세한 페이징 성능 개선 과정 Click!](https://purple-knot-a8d.notion.site/No-Offset-Covering-Index-Non-Clustered-Index-7f2b909ed2bb417eb0d4cc8b778dbdcb?pvs=4)
 #### Covering Index, Non Clustered Index 적용 전 9.85초
 <img width="632" alt="스크린샷 2024-01-15 오후 3 05 07" src="https://github.com/ks12b0000/VocaProject/assets/102012155/58dff7c6-ae1a-4063-9cde-17a7872d251b">
 <br/>
